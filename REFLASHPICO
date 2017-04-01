@@ -1,0 +1,5 @@
+#
+# make sure you short the pins underneath - and have a recent dfu from
+# 
+cd micropython/tools
+sudo ./pydfu.py -u ~/pico/espruino-pico-20170108-v1.8.7.dfu
