@@ -18,6 +18,7 @@
 #15   = Checksum
 import serial
 ser = serial.Serial('/dev/ttyACM0',9600)
+file = open("log.txt","w")
 print("lat lon alt qual hdop time sats")
 while 1:
 	data = ser.readline()
@@ -31,6 +32,8 @@ while 1:
 		sats = f[7]		
 		hdop = f[8]		
 		alt = f[9]
-		print(lat, lon, alt, qual, hdop, gpstime, sats)
+		nmea = (lat, lon, alt, qual, hdop, gpstime, sats)
+		print format(nmea)
+		file.write(format(nmea) + "\n")
 			
 			
