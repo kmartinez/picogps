@@ -16,6 +16,8 @@
 #13   = Age in seconds since last update from diff. reference station
 #14   = Diff. reference station ID#
 #15   = Checksum
+# time date message (seen rarely>)
+# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
 import serial
 ser = serial.Serial('/dev/ttyACM0',9600)
 file = open("log.txt","w")
