@@ -4,5 +4,7 @@ Kirk Martinez, University of Southampton
 
 Reminders
 fresh Ubuntu installs need these to test code locally:
+
 sudo apt install python-pip
+
 pip install pyserial
