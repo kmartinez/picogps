@@ -17,12 +17,10 @@
 #14   = Diff. reference station ID#
 #15   = Checksum
 # time date message (need enabling)
-# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
 import serial
 
-def nmealon2lon( n):
+def nmealon2lon( l):
 	# convert text NMEA lon to degrees.decimalplaces
-	l = nmea[1]
 	degrees = float(l[0:3])
 	decimals = float(l[3:11])/60
 	lon = degrees + decimals
@@ -36,9 +34,9 @@ def nmealat2lat( nl):
 	decimals = float(nl[2:10])/60
 	return(degrees + decimals)
 
-ser = serial.Serial('/dev/ttyACM0',9600)
+ser = serial.Serial('/dev/ttyUSB0',38400)
 file = open("log.txt","w")
-print("lat lon alt qual hdop time sats")
+print("lat lon alt qual hdop sats")
 while 1:
 	data = ser.readline()
 	#data = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
@@ -54,11 +52,17 @@ while 1:
 		hdop = f[8]		
 		alt = f[9]
 		nmea = (lat, lon, E, alt, qual, hdop, gpstime, sats)
-		print format(nmea)
-		print( nmealat2lat(lat) )
-		print( nmealon2lon(nmea) )
+		#print format(nmea)
+		# need to limit lat and lon to 10 decimal places? and compose string to save
+		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats )
+		print(location)
 		#file.write(format(nmea) + "\n")
 			
 	if data.startswith( '$GPZDA' ) or data.startswith('$GNZDA') :
+		# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
+		# ignore decimals seconds
 		print data
-				
+		fields = data.split(",")
+		hms = fields[1]
+		tod = (hms[0:2], hms[2:4], hms[4:6], fields[2], fields[3], fields[4])		
+		print tod
