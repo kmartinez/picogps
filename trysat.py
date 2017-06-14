@@ -15,7 +15,7 @@ ser = UART(2,19200)
 def satsignal():
 	print('getting signal strength')
 	ser.write('AT+CSQ\r')
-	print ser.read()
+	print(ser.read())
 
 def waitforOK():
 	count = 10
@@ -39,6 +39,12 @@ def waitforsat():
 		else:
 			print(ret)
 			count = 0
+
+def sendtext(msg): 
+	print('sending message')
+	txt = msg + '\r'
+	ser.write(txt)
+	waitforOK()
 
 def sendmsg(msg): 
 	print('sending message')
