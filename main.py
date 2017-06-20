@@ -1,57 +1,21 @@
-# main.py -- put your code here!
+from ds3231 import DS3231
+from time import sleep
+import utime, pyb
 
-import pyb
-import utime
-from machine import Pin
-#import machine
+rtc = pyb.RTC()
 
-# normal sleep - not very low power
-def testsleep():
-	led = pyb.LED(1)
-	for x in range(0,10):
-		led.toggle()
-		utime.sleep_ms(2000)
-		led.toggle()
-		utime.sleep_ms(2000)
+extrtc = DS3231()
 
-def testrtc():
-	rtc = pyb.RTC()	
-	rtc.datetime((2017,3,20,10,15,0,0,0))
-	for x in range(0,10):	
-		print(rtc.datetime() )
-		utime.sleep_ms(1000)
-		
-def wokenup():
-	print("wokenup")
-	#for x in range(0,5):
-	#	led.toggle()
-	#	pyb.delay(200)
-	#	led.toggle()
-	#	pyb.delay(200)
 
-def testalarm():
-	# config wakeup every N ms
-	rtc = pyb.RTC()
-	rtc.wakeup(10000)
-	
-	
-			
+def printnow():
+	print("ext rtc:")
+	print ( extrtc.get_time() )
 
-def testpin():
-	# create input on pin
-	led = pyb.LED(1)
-	p5 = pyb.Pin('B5',Pin.IN, Pin.PULL_UP)
-	for x in range(0,50):
-		if p5.value() == 1 :
-			led.on()
-		else :
-			led.off()
+printnow()
 
-		pyb.delay(100)
+extrtc.clearalarm()
+extrtc.testalarm()
 
-print("starting  test in 1s")
-pyb.delay(1000)	
-testpin()
-#pyb.stop()
-# deep sleep - pyb.standby() danger!
-
+# for i in range(0,15):
+# 	printnow()
+# 	sleep(1)
