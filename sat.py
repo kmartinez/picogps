@@ -16,7 +16,7 @@ from time import sleep
 
 # gives 0 none to 5 strong
 # after few s it replies +CSQ:2 newline then OK
-def satsignal():
+def satsignal(ser):
 	print('getting signal strength')
 	msg = 'AT+CSQ\r'
 	ser.write(msg)
@@ -38,7 +38,7 @@ def satsignal():
 	else:
 		return(None)
 
-def waitforOK():
+def waitforOK(ser):
 	count = 10
 	while count > 0 :
 		ret = ser.read()
@@ -48,7 +48,7 @@ def waitforOK():
 			return(True)
 	return(False)
 		
-def waitforsat():
+def waitforsat(ser):
 	count = 10
 	while count > 0:
 		print('sending AT')
@@ -64,14 +64,14 @@ def waitforsat():
 		else:
 			print('nothing yet')
 
-def sendtext(msg): 
+def sendtext(ser, msg): 
 	print('sending message')
 	txt = msg + '\r'
 	ser.write(txt)
 	#waitforOK()
 	print(ser.read())
 
-def sendmsg(msg): 
+def sendmsg(ser, msg): 
 	print('sending message')
 	txt = 'AT+SBDWT=' + msg + '\r'
 	ser.write(txt)
@@ -82,8 +82,8 @@ def sendmsg(msg):
 	# shoud be +SBDIX: 0,0,0,0,0,0\r
 	print(ret)
 
-waitforsat()
+# waitforsat(ser)
 
-strength = satsignal()
-if strength != None:
-	print strength
+# strength = satsignal()
+# if strength != None:
+# 	print strength

@@ -1,14 +1,17 @@
 #
 # main picoGPS code
 
-<<<<<<< HEAD
 from ds3231 import DS3231
-from gps import processGPS
+from gps import *
+from sat import *
 from common import d
 
 #Setup debugging
 
 disableDebug()
+
+#Disable actually sending iridium messages (because $$$)
+dryrun = 1
 
 # just been woken up by alarm
 # check we are on a scheduled hour
@@ -77,8 +80,22 @@ def main():
 	# turn SAT on
 	SATpower.value(1)
 
+	#wait for sat to boot
+	waitforsat(satuart)
+
+	strength = satsignal(satuart)
+		if strength != None:
+			d('Sat strength: ' + strength)
+
 	# send fix via sat
-	
+
+	if(!dryrun) {
+		d('Sending fix via satellite')
+		sendmsg(satuart, ''.join(finalgps))
+		d('Done interfacing with sat.')
+	}
+
+	SATpower.value(0)
 	
 	# turn SAT off
 
@@ -87,33 +104,25 @@ def main():
 
 	# set next wakeup from schedule
 
+	nexthour = -1
+
+	for item in schedule:
+		if(item>hh):
+			nexthour = item
+			break
+	#We didnt find any next hour (roll around to beginning)
+	if(nexthour==-1):
+		nexthour = schedule[0]
+
+	extrtc.setalarm(nexthour)
+
+	d('END OF CODE')
+	exit()
+
+	#Need to be careful. If you wake it up and want it to go 
+	#back into normal operation, need a function to set the RTC 
+	#to the next available time and run again.
+
 	# if we are not on USB:
 	# deepsleep
 	# pyb.stop()
-=======
-# just been woken up by alarm
-
-# check we are on a scheduled hour
-schedule = (0, 3, 6, 9, 12, 15, 18,21)
-
-# if not we're in maintenance mode exit()
-
-# turn on GPS
-# wait for GPS fix OR timeout - store
-# turn GPS off
-
-# if gpstime is > 10s different from extrtc - set extrtc
-
-# turn SAT on
-# send fix via sat
-# turn SAT off
-
-# if not successful 
-#  store GPS fix in the file (check file is not at maxsize)
-
-# set next wakeup from schedule
-
-# if we are not on USB:
-# deepsleep
-# pyb.stop()
->>>>>>> a01b07af3e16f7a272c3f8844f40036008d33878
