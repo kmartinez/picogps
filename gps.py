@@ -17,14 +17,14 @@
 #14   = Diff. reference station ID#
 #15   = Checksum
 # time date message (need enabling)
-import serial
+#import serial
 
 def nmealon2lon( l):
 	# convert text NMEA lon to degrees.decimalplaces
 	degrees = float(l[0:3])
 	decimals = float(l[3:11])/60
 	lon = degrees + decimals
-	if nmea[2] == 'W':
+	if f[3] == 'W':
 		lon = -lon
 	return(lon)
 
@@ -40,11 +40,14 @@ def nmealat2lat( nl):
 # while 1:
 	# data = ser.readline()
 	#data = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
+f = None
 
-def processGPS():
+def processGPS(data):
 	
 	if data.startswith( '$GPGGA' ) or data.startswith('$GNGGA') :
 		#It's positional data
+		data = str(data)
+		global f
 		f =  data.split(',')			
 		gpstime = f[1].split(".")[0]
 		lat = f[2]
@@ -67,6 +70,7 @@ def processGPS():
 		# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
 		# ignore decimals seconds
 		#print data
+		data = str(data)	
 		fields = data.split(",")
 		hms = fields[1]
 		#		YY			MM			DD			hh 		 	mm		ss
