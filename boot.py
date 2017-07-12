@@ -9,6 +9,6 @@ import pyb
 
 GPSpower = pyb.Pin('B13',machine.Pin.OUT)
 Satpower = pyb.Pin('B14',machine.Pin.OUT)
-gpsuart = pyb.UART(1,38400)
+gpsuart = pyb.UART(1,9600)
 satuart = pyb.UART(2,19200)
 raduart = pyb.UART(4,9600)

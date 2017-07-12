@@ -24,7 +24,7 @@ def nmealon2lon( l):
 	degrees = float(l[0:3])
 	decimals = float(l[3:11])/60
 	lon = degrees + decimals
-	if f[3] == 'W':
+	if nmea[2] == 'W':
 		lon = -lon
 	return(lon)
 
@@ -34,20 +34,17 @@ def nmealat2lat( nl):
 	decimals = float(nl[2:10])/60
 	return(degrees + decimals)
 
-# ser = serial.Serial('/dev/ttyUSB0',38400)
-# file = open("log.txt","w")
-# print("lat lon alt qual hdop sats")
-# while 1:
-	# data = ser.readline()
-	#data = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
-f = None
+#ser = serial.Serial('/dev/ttyUSB0',38400)
+#file = open("log.txt","w")
 
-def processGPS(data):
+ser = gpsuart
+
+print("lat lon alt qual hdop sats")
+while 1:
+	data = ser.readline()
+	#data = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
 	
 	if data.startswith( '$GPGGA' ) or data.startswith('$GNGGA') :
-		#It's positional data
-		data = str(data)
-		global f
 		f =  data.split(',')			
 		gpstime = f[1].split(".")[0]
 		lat = f[2]
@@ -61,23 +58,14 @@ def processGPS(data):
 		#print format(nmea)
 		# need to limit lat and lon to 10 decimal places? and compose string to save
 		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats )
-		#print(location)
-		return 'p', location
+		print(location)
 		#file.write(format(nmea) + "\n")
 			
-	elif data.startswith( '$GPZDA' ) or data.startswith('$GNZDA') :
-		#It's timing data
+	if data.startswith( '$GPZDA' ) or data.startswith('$GNZDA') :
 		# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
 		# ignore decimals seconds
-		#print data
-		data = str(data)	
+		print(data)
 		fields = data.split(",")
 		hms = fields[1]
-		#		YY			MM			DD			hh 		 	mm		ss
-		tod = (fields[4], fields[3], fields[2], hms[0:2], hms[2:4], hms[4:6])	
-		return "t", tod
-		#print tod
-
-	else:
-		#No string detected == Did it timeout?
-		return None, None
+		tod = (hms[0:2], hms[2:4], hms[4:6], fields[2], fields[3], fields[4])		
+		print(tod)

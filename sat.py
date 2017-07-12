@@ -4,19 +4,23 @@
 # may have to disable handshake with AT&K0 ???
 # may have to read back the stuff sent as its echod
 #from pyb import UART
-import serial
+#import serial
 #import utime
 #ser = UART(2,19200)
 
 # normal systems:
 from time import sleep
+import pyb
 # ser = serial.Serial('/dev/ttyUSB0',19200)
 # can set the timeout option too in ms:
 # ser.init(19200,nits=8,parity=None,timeout=50)
 
 # gives 0 none to 5 strong
 # after few s it replies +CSQ:2 newline then OK
-def satsignal(ser):
+
+ser = pyb.UART(2,19200)
+
+def satsignal():
 	print('getting signal strength')
 	msg = 'AT+CSQ\r'
 	ser.write(msg)
@@ -29,6 +33,7 @@ def satsignal(ser):
 	#blank line
 	ser.readline()
 	#OK
+	ret = str(ret)
 	ser.readline()
 	if ret != None:
 		n =  ret.find('+CSQ')
@@ -38,7 +43,7 @@ def satsignal(ser):
 	else:
 		return(None)
 
-def waitforOK(ser):
+def waitforOK():
 	count = 10
 	while count > 0 :
 		ret = ser.read()
@@ -48,7 +53,7 @@ def waitforOK(ser):
 			return(True)
 	return(False)
 		
-def waitforsat(ser):
+def waitforsat():
 	count = 10
 	while count > 0:
 		print('sending AT')
@@ -64,14 +69,14 @@ def waitforsat(ser):
 		else:
 			print('nothing yet')
 
-def sendtext(ser, msg): 
+def sendtext(msg): 
 	print('sending message')
 	txt = msg + '\r'
 	ser.write(txt)
 	#waitforOK()
 	print(ser.read())
 
-def sendmsg(ser, msg): 
+def sendmsg(msg): 
 	print('sending message')
 	txt = 'AT+SBDWT=' + msg + '\r'
 	ser.write(txt)
