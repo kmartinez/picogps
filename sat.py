@@ -20,6 +20,7 @@ import pyb
 
 ser = pyb.UART(2,19200)
 
+# sig str can take > 4s
 def satsignal():
 	print('getting signal strength')
 	msg = 'AT+CSQ\r'
@@ -53,6 +54,7 @@ def waitforOK():
 			return(True)
 	return(False)
 		
+# mainly in case it hasn't started up yet
 def waitforsat():
 	count = 10
 	while count > 0:
@@ -76,6 +78,7 @@ def sendtext(msg):
 	#waitforOK()
 	print(ser.read())
 
+# send a msg - can take many seconds
 def sendmsg(msg): 
 	print('sending message')
 	txt = 'AT+SBDWT=' + msg + '\r'
@@ -83,9 +86,17 @@ def sendmsg(msg):
 	waitforOK()
 	# was it ok?
 	ser.write('AT+SBDIX\r')
+	#discard our echo
+	ser.readline()
+	# probably need sleep 1 or 2
 	ret = ser.read()
-	# shoud be +SBDIX: 0,0,0,0,0,0\r
+	# SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
+	# FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
 	print(ret)
+	status = ret.split(",")[0].split(" ")[1]
+	if status == "0":
+		d("msg sent")
+
 
 # waitforsat(ser)
 
