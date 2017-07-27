@@ -73,17 +73,37 @@ def sendtext(msg):
 
 def sendmsg(msg): 
 	print('sending message')
-	txt = 'AT+SBDWT=' + msg + '\r'
-	ser.write(txt)
-	waitforOK()
-	# was it ok?
-	ser.write('AT+SBDIX\r')
-	ret = ser.read()
-	# shoud be +SBDIX: 0,0,0,0,0,0\r
-	print(ret)
+        txt = 'AT+SBDWT=' + msg + '\r'
+        ser.write(txt)
+        waitforOK()
+        # was it ok?
+        ser.write('AT+SBDIX\r')
+        #discard our echo
+        ser.readline()
+        # probably need sleep 1 or 2
+	sleep(2)
+	ret = None
+        while (ret != None) :
+		ret = ser.readline()
+		sleep(1)
+		print "waiting for status"
+        # SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
+        # FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
+        print(ret)
+        status = ret.split(",")[0].split(" ")[1]
+        if status == "0":
+                print "msg sent"
 
+# just checks AT returns
 waitforsat()
+count = 1
+while count < 3:
+	strength = satsignal()
+	if strength != None:
+		print "strength=" + str(strength)
+		break
+	count = count + 1
+	sleep(1)
 
-strength = satsignal()
-if strength != None:
-	print strength
+if strength > 3:
+	sendmsg("testing 1 2 3")
