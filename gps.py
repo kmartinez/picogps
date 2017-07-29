@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# GPS functions
 #$GPGGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh
 #1    = UTC of Position
 #2    = Latitude
@@ -16,13 +16,11 @@
 #13   = Age in seconds since last update from diff. reference station
 #14   = Diff. reference station ID#
 #15   = Checksum
-# time date message (need enabling)
-#import serial
 
 def nmealon2lon( l):
 	# convert text NMEA lon to degrees.decimalplaces
 	degrees = float(l[0:3])
-	decimals = float(l[3:11])/60
+	decimals = float(l[3:])/60
 	lon = degrees + decimals
 	if f[3] == 'W':
 		lon = -lon
@@ -31,19 +29,12 @@ def nmealon2lon( l):
 def nmealat2lat( nl):
 	# convert text NMEA lat to degrees.decimalplaces
 	degrees = float(nl[0:2])
-	decimals = float(nl[2:10])/60
+	decimals = float(nl[2:])/60
 	return(degrees + decimals)
 
-# ser = serial.Serial('/dev/ttyUSB0',38400)
-# file = open("log.txt","w")
-# print("lat lon alt qual hdop sats")
-# while 1:
-	# data = ser.readline()
-	#data = "$GPGGA,184353.07,1929.045,S,02410.506,E,1,04,2.6,100.00,M,-33.9,M,,0000*6D"
 f = None
 
 def processGPS(data):
-	
 	if data.startswith( '$GPGGA' ) or data.startswith('$GNGGA') :
 		#It's positional data
 		data = str(data)
@@ -54,30 +45,24 @@ def processGPS(data):
 		lon = f[4]
 		E = f[5]
 		qual = f[6]
-		sats = f[7]		
+		sats = f[7].strip("0")		
 		hdop = f[8]		
 		alt = f[9]
 		nmea = (lat, lon, E, alt, qual, hdop, gpstime, sats)
-		#print format(nmea)
-		# need to limit lat and lon to 10 decimal places? and compose string to save
 		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats )
-		#print(location)
 		return 'p', location
-		#file.write(format(nmea) + "\n")
 			
 	elif data.startswith( '$GPZDA' ) or data.startswith('$GNZDA') :
-		#It's timing data
+		# It's timing data
 		# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
 		# ignore decimals seconds
-		#print data
 		data = str(data)	
 		fields = data.split(",")
 		hms = fields[1]
-		#		YY			MM			DD			hh 		 	mm		ss
+		#	YY	MM	DD	hh 	mm	ss
 		tod = (fields[4], fields[3], fields[2], hms[0:2], hms[2:4], hms[4:6])	
 		return "t", tod
-		#print tod
 
 	else:
-		#No string detected == Did it timeout?
+		#No known string detected == probably timeout
 		return None, None
