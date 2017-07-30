@@ -16,7 +16,7 @@
 #13   = Age in seconds since last update from diff. reference station
 #14   = Diff. reference station ID#
 #15   = Checksum
-
+from common import d
 def nmealon2lon( l):
 	# convert text NMEA lon to degrees.decimalplaces
 	degrees = float(l[0:3])
@@ -29,7 +29,10 @@ def nmealon2lon( l):
 def nmealat2lat( nl):
 	# convert text NMEA lat to degrees.decimalplaces
 	degrees = float(nl[0:2])
-	decimals = float(nl[2:])/60
+	decimals = float(nl[2:])/60.0
+	print(degrees)
+	print(decimals)
+	print(degrees+decimals)
 	return(degrees + decimals)
 
 f = None
@@ -48,8 +51,8 @@ def processGPS(data):
 		sats = f[7].strip("0")		
 		hdop = f[8]		
 		alt = f[9]
-		nmea = (lat, lon, E, alt, qual, hdop, gpstime, sats)
-		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats )
+		nmeafix = lat + "," + lon + "," + E + "," + alt + "," + qual + "," + hdop + "," + gpstime + "," +  sats + ";"
+		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats,nmeafix )
 		return 'p', location
 			
 	elif data.startswith( '$GPZDA' ) or data.startswith('$GNZDA') :
