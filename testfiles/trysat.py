@@ -4,13 +4,13 @@
 # may have to disable handshake with AT&K0 ???
 # may have to read back the stuff sent as its echod
 #from pyb import UART
-import serial
 #import utime
 #ser = UART(2,19200)
-
+ser = satuart
 # normal systems:
+#import serial
 from time import sleep
-ser = serial.Serial('/dev/ttyUSB0',19200)
+#ser = serial.Serial('/dev/ttyUSB0',19200)
 # can set the timeout option too in ms:
 # ser.init(19200,nits=8,parity=None,timeout=50)
 
@@ -86,13 +86,13 @@ def sendmsg(msg):
         while (ret != None) :
 		ret = ser.readline()
 		sleep(1)
-		print "waiting for status"
+		print("waiting for status")
         # SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
         # FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
         print(ret)
         status = ret.split(",")[0].split(" ")[1]
         if status == "0":
-                print "msg sent"
+                print("msg sent")
 
 # just checks AT returns
 waitforsat()
@@ -100,7 +100,7 @@ count = 1
 while count < 3:
 	strength = satsignal()
 	if strength != None:
-		print "strength=" + str(strength)
+		print("strength=" + str(strength))
 		break
 	count = count + 1
 	sleep(1)
