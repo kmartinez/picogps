@@ -8,11 +8,10 @@ from sat import *
 from common import d
 schedule = [0,3,6,9,11,12,15,18,21]
 transmit = [11]
-global finalgps
 # max number of loops in ms
 positiontimeout = 60*1000
-# use fix type above this quality (garden was only 1 :-(
-QUALTHRESH = 0 
+# use fix type above this quality (is FIX really 4?)
+QUALTHRESH = 3 
 
 #Get the current time
 #extrtc = DS3231()
@@ -76,7 +75,8 @@ def satloop():
 
 
 def gpsloop():
-
+	global finalgps
+	fixcount = 0
 	#turn GPS on
 	GPSpower.value(1)
 
@@ -108,29 +108,27 @@ def gpsloop():
 		elif(thetype=='p'):
 			#We got some positional data
 			d('got position')
-
-			(lat,lon,alt,qual,hdop,sats) = data
+			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
+			d(nmeafix)
 			d(qual)
 			if(int(qual) > QUALTHRESH):
 				#We are happy with the quality of the GPS fix.
-				finalgps = data
-				d(finalgps)
-				gps10.append([lat,lon])
+				fixcount += 1
+				finalgps = nmeafix
 
 		else:
 			#Theres been some kind of problem. Timeout?
 			d('No data received - Timeout?')
 			pass
 
-		#Only store last 10 gps readings in array
-		if(len(gps10) > 10):
-			# we will just terminate after ten
-			for count in range(0,9):
-				avlat += gps10[count][0]
-				avlon += gps10[count][1]
-			print( avlat/10, avlon/10) 
+		#once we have seen 15 fixes we store and exit
+		if(fixcount >= 15):
+			# store it in file
+			with open('data.txt','w') as file:
+				# assume we saw timedate for now
+				tostore = gpsYY + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix
+				file.write(tostore)
 			break
-			#gps10.pop(0)
 
 
 		#Set the time for our positiontimeout
@@ -140,4 +138,3 @@ def gpsloop():
 	#GPSpower.value(0)
 
 gpsloop()
-print(finalgps)
