@@ -37,23 +37,19 @@ def satloop():
 	with open('data.txt','r') as file:
 		i = 0
 		for line in file:
-			#Check we are only sending a few readings.
-			i = i + 1
-			if(i>8):
-				break
-			#Load readings into file
-			line_Str=file.readline()
-			line_Str=line_Str.rstrip('\n')
-			line_Str=line_Str.rstrip('\r')
-			data.append(line)
-
-	for item in data:
-		payload = payload + data
+			# need to swap \n for ; for iridium
+                        linenoCR = line.rstrip('\n')
+                        linenoCR = linenoCR + ';'
+                        payload = payload + linenoCR
+                        #Check we are only sending a few readings.
+                        i = i + 1
+                        if(i >= 5):
+                                break
 
 	# turn SAT on
-	SATpower.value(1)
+	Satpower.value(1)
 	#wait for sat to boot
-	waitforsat(satuart)
+	waitforsat()
 
 	strength = satsignal(satuart)
 	if strength != None:
@@ -63,12 +59,12 @@ def satloop():
 
 	# send fix via sat
 
-	d('Sending fix via satellite')
-	sendmsg(satuart, ''.join(finalgps))
+	d('Sending fixes via Iridium')
+	sendmsg(satuart, payload)
 	d('Done interfacing with sat.')
 
 	#turn SAT off
-	SATpower.value(0)
+	Satpower.value(0)
 	#we're done.
 	return
 
@@ -106,27 +102,25 @@ def gpsloop():
 				#extrtc.set_time(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss)
 
 		elif(thetype=='p'):
-			#We got some positional data
+			#We got some positional data, may need to say q=4 ?
 			d('got position')
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
-			d(nmeafix)
-			d(qual)
 			if(int(qual) > QUALTHRESH):
-				#We are happy with the quality of the GPS fix.
+				#count happy GPS fix.
+				d(qual)
 				fixcount += 1
-				finalgps = nmeafix
 
 		else:
 			#Theres been some kind of problem. Timeout?
-			d('No data received - Timeout?')
+			#d('No data received - Timeout?')
 			pass
 
-		#once we have seen 15 fixes we store and exit
+		#once we have seen 15 fixes we store and exit QUICKHACK
 		if(fixcount >= 15):
 			# store it in file
-			with open('data.txt','w') as file:
+			with open('data.txt','a') as file:
 				# assume we saw timedate for now
-				tostore = gpsYY + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix
+				tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix
 				file.write(tostore)
 			break
 

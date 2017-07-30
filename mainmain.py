@@ -5,13 +5,13 @@ from ds3231 import DS3231
 from gps import *
 from sat import *
 from common import d
-
-schedule = [0 3 6 9 11 12 15 18 21]
+enabledebug()
+schedule = [0,3,6,9,11,12,15,18,21]
 transmit = [11]
 
 #Get the current time
 extrtc = DS3231()
-(YY, MM, DD, hh, mm, ss, wday n1, n2) = extrtc.get_time()
+(YY, MM, DD, hh, mm, ss, wday, n1, n2) = extrtc.get_time()
 
 if(hh in schedule and mm<10 and hh in transmit):
 	#Satellite transmission time.
@@ -31,7 +31,6 @@ def satloop():
 	data = []
 	payload = ""
 
-
 	with open('data.txt','r') as file:
 		i = 0
 		for line in file:
@@ -45,7 +44,6 @@ def satloop():
 			line_Str=line_Str.rstrip('\r')
 			data.append(line)
 
-		
 	for item in data:
 		payload = payload + data
 
@@ -80,6 +78,8 @@ def gpsloop():
 
 	t = 0
 	gps10 = []
+	# wait for typ warm-up time
+	sleep(10)
 
 	while t<positiontimeout:
 		start = millis()
@@ -88,18 +88,18 @@ def gpsloop():
 
 		if(thetype=='t'):
 			#We got a timestamp
-			d('We got a timestamp')
+			d('got timestamp')
 			(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss, gpswday gpsn1, gpsn2) = data
 
 			# if gpstime is > 10s different from extrtc - set extrtc
 			if(abs(gpsYY-YY)>0 or abs(gpsMM-MM)>0 or abs(gpsDD-DD)>0 or abs(gpshh-hh)>0 or abs(gpsmm-mm)>0 or abs(gpsss-ss)>10):
-				#We should update the external RTC. We're greater than 10 seconds out.
-				d('Setting external RTC. Theres a time difference.')
+				#update external RTC. We're >10s out
+				d('Setting ext RTC')
 				extrtc.set_time(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss)
 
 		elif(thetype=='p'):
 			#We got some positional data
-			d('We got positional data')
+			d('got position')
 
 			(lat,lon,alt,qual,hdop,sats) = data
 
@@ -113,12 +113,9 @@ def gpsloop():
 			d('No data received - Timeout?')
 			pass
 
-
 		#Only store last 10 gps readings in array
 		if(gps10.length>10):
 			gps10.pop(0)
-
-		foreach()
 
 
 		#Set the time for our positiontimeout

@@ -7,9 +7,10 @@ def enableDebug():
 	debug = True
 
 def d(txt):
-	if(debug):
-		#Print debug messages
-		print txt
-	else:
-		#Dont bother printing debug
-		pass
+	print(txt)
+#	if(debug):
+#		#Print debug messages
+#		print txt
+#	else:
+#		#Dont bother printing debug
+#		pass

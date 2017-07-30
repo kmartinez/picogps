@@ -30,9 +30,6 @@ def nmealat2lat( nl):
 	# convert text NMEA lat to degrees.decimalplaces
 	degrees = float(nl[0:2])
 	decimals = float(nl[2:])/60.0
-	print(degrees)
-	print(decimals)
-	print(degrees+decimals)
 	return(degrees + decimals)
 
 f = None
@@ -51,18 +48,18 @@ def processGPS(data):
 		sats = f[7].strip("0")		
 		hdop = f[8]		
 		alt = f[9]
-		nmeafix = lat + "," + lon + "," + E + "," + alt + "," + qual + "," + hdop + "," + gpstime + "," +  sats + ";"
+		nmeafix = lat + "," + lon + "," + E + "," + alt + "," + qual + "," + hdop + "," +  sats + "\n"
 		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats,nmeafix )
 		return 'p', location
 			
 	elif data.startswith( '$GPZDA' ) or data.startswith('$GNZDA') :
 		# It's timing data
 		# $GPZDA,hhmmss.ss,dd,mm,yyyy,xx,yy*CC
-		# ignore decimals seconds
+		# ignore decimals seconds, keep 20xx year for our rtc
 		data = str(data)	
 		fields = data.split(",")
 		hms = fields[1]
-		#	YY	MM	DD	hh 	mm	ss
+		#	YYYY	MM	DD	hh 	mm	ss
 		tod = (fields[4], fields[3], fields[2], hms[0:2], hms[2:4], hms[4:6])	
 		return "t", tod
 
