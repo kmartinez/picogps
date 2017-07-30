@@ -28,12 +28,9 @@ QUALTHRESH = 3
 	#sleep(10)
 
 
-
 def satloop():
-
 	data = []
 	payload = ""
-
 	with open('data.txt','r') as file:
 		i = 0
 		for line in file:
@@ -47,6 +44,7 @@ def satloop():
                                 break
 
 	# turn SAT on
+	d('SAT on')
 	Satpower.value(1)
 	#wait for sat to boot
 	waitforsat()
@@ -80,14 +78,14 @@ def gpsloop():
 	gps10 = []
 	# wait for typ warm-up time
 	d('waiting for warmup period')
-	sleep(1)
+	sleep(11)
 	d('starting gps loop')
 
 	while t < positiontimeout:
 		start = pyb.millis()
 		nmea = gpsuart.readline()
-		if nmea == None:
-			break
+		if (nmea == None) or (len(nmea) < 32):
+			continue
 		thetype, data = processGPS(nmea)
 
 		if(thetype=='t'):
@@ -107,7 +105,6 @@ def gpsloop():
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
 			if(int(qual) > QUALTHRESH):
 				#count happy GPS fix.
-				d(qual)
 				fixcount += 1
 
 		else:
@@ -129,6 +126,7 @@ def gpsloop():
 		t = pyb.millis()-start
 
 	# turn GPS off
-	#GPSpower.value(0)
+	d('GPS off')
+	GPSpower.value(0)
 
 gpsloop()

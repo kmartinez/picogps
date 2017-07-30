@@ -38,6 +38,7 @@ def processGPS(data):
 	if data.startswith( '$GPGGA' ) or data.startswith('$GNGGA') :
 		#It's positional data
 		data = str(data)
+		# Why?
 		global f
 		f =  data.split(',')			
 		gpstime = f[1].split(".")[0]
@@ -48,7 +49,7 @@ def processGPS(data):
 		sats = f[7].strip("0")		
 		hdop = f[8]		
 		alt = f[9]
-		nmeafix = lat + "," + lon + "," + E + "," + alt + "," + qual + "," + hdop + "," +  sats + "\n"
+		nmeafix = lat + "," + lon.strip('0') + "," + E + "," + alt + "," + qual + "," + hdop + "," +  sats + "\n"
 		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats,nmeafix )
 		return 'p', location
 			
