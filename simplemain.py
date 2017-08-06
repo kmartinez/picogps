@@ -27,7 +27,16 @@ QUALTHRESH = 3
 	#We've been woken up externally. Wait for CTRL-C or sleep.
 	#sleep(10)
 
-
+# vital dumper in case of stuck readings on Pico
+def dumpfile():
+	# really need to sleep(10) so logging can be started
+	fd = open('data.txt','r')
+	b = " "
+	while b != "" :
+		b = fd.readline()
+		print(b)
+	
+# power up Iridium, wait for connection, send data file messages
 def satloop():
 	data = []
 	payload = ""
@@ -40,20 +49,21 @@ def satloop():
                         payload = payload + linenoCR
                         #Check we are only sending a few readings.
                         i = i + 1
-                        if(i >= 5):
+                        if(i >= 3):
                                 break
-
+	d(payload)
 	# turn SAT on
 	d('SAT on')
 	Satpower.value(1)
 	#wait for sat to boot
 	waitforsat()
-
+	d('Getting Iridium signal')
 	strength = satsignal(satuart)
 	if strength != None:
 		d('Sat strength: ' + strength)
 	else:
-		pass
+		d('Sat strengh failed')
+		return
 
 	# send fix via sat
 
