@@ -91,13 +91,14 @@ def sendmsg(msg):
 	satuart.readline()
 	# probably need sleep 1 or 2
 	sleep(1)
-	count = 10
+	count = 80
 	while count > 0 :
 		ret = satuart.read()
 		# SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
 		# FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
 		print(ret)
 		if ret != None:
+			ret = ret.lstrip()
 			status = ret.split(",")[0].split(" ")[1]
 			if status == "0":
 				d("msg sent")
