@@ -6,6 +6,24 @@ import os
 def version():
 	print('kirks file test code')
 
+def getfilestart():
+	f = open('filestart.txt','r')
+	if f != None :
+		filestart = f.readline()
+	f.close()
+	if filestart != None :
+		return(int(filestart))
+	else:
+		return(0)
+	
+def setfilestart(n):
+	f = open('filestart.txt','w')
+	if f != None :
+		f.write(str(n))
+	f.close()
+
+	
+
 def writeit():
 	somedata = '01234567890,1234567890,1234567890,3,4,5\n'
 	somedatasize = len(somedata)
@@ -15,12 +33,13 @@ def writeit():
 		print(written)
 	if written != somedatasize :
 		print( 'write not complete')
+	setfilestart(getfilestart() + 10)
 	f.close()
 
 def readit():
 	data = []
 	payload = ""
-
+	
 	with open('data.txt','r') as file:
 		i = 0
 		for line in file:
@@ -37,6 +56,7 @@ def readit():
 	# fake sat send
 	print(payload)
 	# if success
+	# harsh technique of writing back what we didn't send
 	file= open('data.txt','r')
 	count = i
 	# read the lines we sent
