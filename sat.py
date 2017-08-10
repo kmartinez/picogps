@@ -17,17 +17,7 @@ def satsignal():
 	print('getting signal strength')
 	msg = 'AT+CSQ\r'
 	satuart.write(msg)
-	#discard our echo
-	#satuart.readline()
-	#discard blank line
-	#ret = satuart.readline()
-	#d(ret)
-	#sleep(1)
-	#ret = satuart.readline()
-	#d(ret)
-	#OK
-	#ret = satuart.readline()
-	#d(ret)
+	# this will discard our echo, blank line etc
 	# now we hope for reply
 	# at some read we will get CSQ:3\r\n
 	count = 60
@@ -71,13 +61,6 @@ def waitforsat():
 			count = count -1
 			print('nothing yet')
 
-def sendtext(msg): 
-	print('sending message')
-	txt = msg + '\r'
-	satuart.write(txt)
-	#waitforOK()
-	print(satuart.read())
-
 # send a msg - can take many seconds
 def sendmsg(msg): 
 	print('sending message')
@@ -93,14 +76,15 @@ def sendmsg(msg):
 	sleep(1)
 	count = 80
 	while count > 0 :
-		ret = satuart.read()
+		ret = satuart.readline()
 		# SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
 		# FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
-		print(ret)
-		if ret != None:
+		if (ret != None) and (len(ret) > 6) :
 			ret = ret.lstrip()
-			status = ret.split(",")[0].split(" ")[1]
-			if status == "0":
+			print(ret)
+			# SOME BUG IN HERE TO DO WITH binary/strings
+			satstatus = ret.split(",")[0].split(" ")[1]
+			if satstatus == "0":
 				d("msg sent")
 			return(True)
 		count = count - 1
