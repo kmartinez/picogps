@@ -9,9 +9,12 @@ sudo apt install python-pip
 
 pip install pyserial
 
+to prevent modemmanager connecting and sending AT etc:
+sudo systemctl disable ModemManager.service
+
 Pico boards are programmed with this dfu:
 http://micropython.org/download#other
-during dev time this was version 1.8.7 (although newer versions exist which push towards hardware not pyb)
+during dev time this was version 1.8.7 (although newer versions exist which push towards hardware not pyb) - oh we have some running the latest...
 
 My normal way is
 git clone https://github.com/micropython/micropython.git
