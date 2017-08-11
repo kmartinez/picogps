@@ -14,8 +14,8 @@ positiontimeout = 60*1000
 QUALTHRESH = 3 
 
 #Get the current time
-#extrtc = DS3231()
-#(YY, MM, DD, hh, mm, ss, wday, n1, n2) = extrtc.get_time()
+extrtc = DS3231()
+# BUG (YY, MM, DD, hh, mm, ss, wday, n1, n2) = extrtc.get_time()
 
 #if(hh in schedule and mm<10 and hh in transmit):
 	#satloop()
@@ -27,17 +27,26 @@ QUALTHRESH = 3
 	#We've been woken up externally. Wait for CTRL-C or sleep.
 	#sleep(10)
 
+# debug gps stream print for tests
+def printgps():
+        while True:
+                s = gpsuart.readline()
+                print(s)
+
 # vital dumper in case of stuck readings on Pico
 def dumpfile():
 	# really need to sleep(10) so logging can be started
 	print('Start logger - 10s to go')
-	sleep(10)
-	fd = open('data.txt','r')
-	b = " "
-	while b != "" :
-		b = fd.readline()
-		print(b)
-	fd.close()
+	sleep(1)
+	try:
+		fd = open('data.txt','r')
+		b = " "
+		while b != "" :
+			b = fd.readline()
+			print(b)
+		fd.close()
+	except :
+		d('no data file')
 
 # power up Iridium, wait for connection, send data file messages
 def satloop():
@@ -107,7 +116,7 @@ def gpsloop():
 			(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss ) = data
 
 			# if gpstime is > 10s different from extrtc - set extrtc
-			#BROKEN RTC if(abs(gpsYY-YY)>0 or abs(gpsMM-MM)>0 or abs(gpsDD-DD)>0 or abs(gpshh-hh)>0 or abs(gpsmm-mm)>0 or abs(gpsss-ss)>10):
+			#BUG if(abs(gpsYY-YY)>0 or abs(gpsMM-MM)>0 or abs(gpsDD-DD)>0 or abs(gpshh-hh)>0 or abs(gpsmm-mm)>0 or abs(gpsss-ss)>10):
 				#update external RTC. We're >10s out
 				#d('Setting ext RTC')
 				#extrtc.set_time(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss)
@@ -126,6 +135,7 @@ def gpsloop():
 			pass
 
 		#once we have seen 15 fixes we store and exit QUICKHACK
+		# At this point we assume we got a GPS datetime
 		if(fixcount >= 15):
 			# store it in file
 			with open('data.txt','a') as file:
@@ -143,3 +153,4 @@ def gpsloop():
 	GPSpower.value(0)
 
 gpsloop()
+satloop()
