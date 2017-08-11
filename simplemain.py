@@ -11,11 +11,14 @@ transmit = [11]
 # max number of loops in ms
 positiontimeout = 60*1000
 # use fix type above this quality (is FIX really 4?)
-QUALTHRESH = 3 
+QUALTHRESH = 4 
+# flag to say we have checked our RTC so it only does it once
 
 #Get the current time
 extrtc = DS3231()
-# BUG (YY, MM, DD, hh, mm, ss, wday, n1, n2) = extrtc.get_time()
+(YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
+if YY == '1900' :
+	print('You need to set extrtc')
 
 #if(hh in schedule and mm<10 and hh in transmit):
 	#satloop()
@@ -32,6 +35,11 @@ def printgps():
         while True:
                 s = gpsuart.readline()
                 print(s)
+
+# debug - print ext rtc date
+def date():
+	extrtc = DS3231()
+	print(extrtc.get_time())
 
 # vital dumper in case of stuck readings on Pico
 def dumpfile():
@@ -93,6 +101,7 @@ def satloop():
 def gpsloop():
 	global finalgps
 	fixcount = 0
+	CheckedRTC = False
 	#turn GPS on
 	GPSpower.value(1)
 
@@ -114,19 +123,23 @@ def gpsloop():
 			#We got a timestamp
 			d('got timestamp')
 			(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss ) = data
-
-			# if gpstime is > 10s different from extrtc - set extrtc
-			#BUG if(abs(gpsYY-YY)>0 or abs(gpsMM-MM)>0 or abs(gpsDD-DD)>0 or abs(gpshh-hh)>0 or abs(gpsmm-mm)>0 or abs(gpsss-ss)>10):
-				#update external RTC. We're >10s out
-				#d('Setting ext RTC')
-				#extrtc.set_time(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss)
+			if CheckedRTC != True:
+				CheckedRTC = True
+				# get our current datetime from rtc
+				(YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
+				# if gpstime is > 10s different from extrtc - set extrtc
+				if(abs(int(gpsYY)-YY)>0 or abs(int(gpsMM)-MM)>0 or abs(int(gpsDD)-DD)>0 or abs(int(gpshh)-hh)>0 or abs(int(gpsmm)-mm)>0 or abs(int(gpsss)-ss)>10):
+					#update external RTC. We're >10s out
+					d('Setting ext RTC')
+					# what to set for wday? 0 ?
+					extrtc.set_time(int(gpsYY), int(gpsMM), int(gpsDD), 0, int(gpshh), int(gpsmm), int(gpsss))
 
 		elif(thetype=='p'):
 			#We got some positional data, may need to say q=4 ?
-			d('got position')
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
-			if(int(qual) > QUALTHRESH):
+			if(qual == '4'):
 				#count happy GPS fix.
+				d('got fix')
 				fixcount += 1
 
 		else:
@@ -152,5 +165,6 @@ def gpsloop():
 	d('GPS off')
 	GPSpower.value(0)
 
+# These are just for our non scheduled tests! REMOVE
 gpsloop()
-satloop()
+#satloop()
