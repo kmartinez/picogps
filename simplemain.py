@@ -1,19 +1,22 @@
 #
 # main picoGPS code
 # Simplified test of immediate GPS read
+# check hour, do a job, set next alarm
+# gps job reads until it gets lots of fixes, saves to data.txt
+# satjob sends batch of fixes from file
 
 from ds3231 import DS3231
 from gps import *
 from sat import *
-from common import d
+from common import *
 schedule = [0,3,6,9,11,12,15,18,21]
 transmit = [11]
 # max number of loops in ms
 positiontimeout = 60*1000
-# use fix type above this quality (is FIX really 4?)
-QUALTHRESH = 4 
-# flag to say we have checked our RTC so it only does it once
-
+# use fix type of this quality (is FIX really 4?) HARDCODED NOW
+FIXQUALITY = '4'
+# minimum Iridium strength to use
+MINIRIDIUM = 2
 #Get the current time
 extrtc = DS3231()
 (YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
@@ -22,39 +25,15 @@ if YY == '1900' :
 
 #if(hh in schedule and mm<10 and hh in transmit):
 	#satloop()
+	#Set Next Wakeup
 
 #elif (hh in schedule and mm<10 and hh not in transmit):
 	##GPS reading time
 	#gpsloop()
+	#Set Next Wakeup
 #else:
 	#We've been woken up externally. Wait for CTRL-C or sleep.
 	#sleep(10)
-
-# debug gps stream print for tests
-def printgps():
-        while True:
-                s = gpsuart.readline()
-                print(s)
-
-# debug - print ext rtc date
-def date():
-	extrtc = DS3231()
-	print(extrtc.get_time())
-
-# vital dumper in case of stuck readings on Pico
-def dumpfile():
-	# really need to sleep(10) so logging can be started
-	print('Start logger - 10s to go')
-	sleep(1)
-	try:
-		fd = open('data.txt','r')
-		b = " "
-		while b != "" :
-			b = fd.readline()
-			print(b)
-		fd.close()
-	except :
-		d('no data file')
 
 # power up Iridium, wait for connection, send data file messages
 def satloop():
@@ -67,32 +46,34 @@ def satloop():
                         linenoCR = line.rstrip('\n')
                         linenoCR = linenoCR + ';'
                         payload = payload + linenoCR
-                        #Check we are only sending a few readings.
+                        #Check we are only sending a few readings.300/55=5
                         i = i + 1
                         if(i >= 3):
                                 break
 	d(payload)
 	# turn SAT on
 	d('SAT on')
-	Satpower.value(1)
+	satpower.value(1)
 	#wait for sat to boot
 	waitforsat()
 	d('Getting Iridium signal')
 	strength = satsignal()
-	if strength != None:
-		d('Sat strength: ' + strength)
+	if (strength != None) and (int(strength) >= MINIRIDIUM) :
+		d('OK Sat strength')
 	else:
-		d('Sat strengh failed')
+		d('Sat strength failed')
 		return
 
 	# send fix via sat
 
 	d('Sending fixes via Iridium')
-	sendmsg(payload)
-	d('Done interfacing with sat.')
+	if sendmsg(payload) == True:
+		d('Done')
+	else:
+		d('SatSend failed')
 
 	#turn SAT off
-	Satpower.value(0)
+	satpower.value(0)
 	#we're done.
 	return
 
@@ -103,7 +84,7 @@ def gpsloop():
 	fixcount = 0
 	CheckedRTC = False
 	#turn GPS on
-	GPSpower.value(1)
+	gpspower.value(1)
 
 	t = 0
 	gps10 = []
@@ -137,7 +118,7 @@ def gpsloop():
 		elif(thetype=='p'):
 			#We got some positional data, may need to say q=4 ?
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
-			if(qual == '4'):
+			if(qual == FIXQUALITY):
 				#count happy GPS fix.
 				d('got fix')
 				fixcount += 1
@@ -163,8 +144,35 @@ def gpsloop():
 
 	# turn GPS off
 	d('GPS off')
-	GPSpower.value(0)
+	gpspower.value(0)
+
+
+# debug gps stream print for tests
+def printgps():
+        while True:
+                s = gpsuart.readline()
+                print(s)
+
+# debug - print ext rtc date
+def date():
+        extrtc = DS3231()
+        print(extrtc.get_time())
+
+# vital dumper in case of stuck readings on Pico
+def dumpfile():
+        # really need to sleep(10) so logging can be started
+        print('Start logger - 10s to go')
+        sleep(1)
+        try:
+                fd = open('data.txt','r')
+                b = " "
+                while b != "" :
+                        b = fd.readline()
+                        print(b)
+                fd.close()
+        except :
+                d('no data file')
 
 # These are just for our non scheduled tests! REMOVE
 gpsloop()
-#satloop()
+satloop()

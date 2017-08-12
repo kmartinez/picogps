@@ -12,24 +12,44 @@ from common import d
 satuart = pyb.UART(2,19200)
 satuart.init(19200,bits=8,parity=None,timeout=60)
 # sig str can take > 4s
-# VERY BUGGY AT THE MOMENT!
+# try three times in case its increasing
 def satsignal():
-	print('getting signal strength')
-	msg = 'AT+CSQ\r'
-	satuart.write(msg)
-	# this will discard our echo, blank line etc
-	# now we hope for reply
-	# at some read we will get CSQ:3\r\n
-	count = 60
+	count = 3
+	while count >= 0:
+		d('getting signal strength')
+		msg = 'AT+CSQ\r'
+		satuart.write(msg)
+		# this will discard our echo, blank line etc
+		# now we hope for reply
+		# at some read we will get CSQ:3\r\n
+		count = 60
+		while count > 0:
+			ret = str(satuart.readline())
+			d(ret)
+			csqpos = ret.find("CSQ:")
+			if (csqpos >= 0) and (len(ret) >5) :
+				return ( ret[4 + csqpos] )
+			count = count -1
+			sleep_ms(100)
+		sleep(2)
+	return(0)
+
+# wait until message sent return and parse code
+# SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
+# FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
+def waitforsent():
+	count = 80
 	while count > 0:
 		ret = str(satuart.readline())
-		d(ret)
-		csqpos = ret.find("CSQ:")
-		if (csqpos >= 0) and (len(ret) >5) :
-			return ( ret[4 + csqpos] )
+		#d(ret)
+		pos = ret.find("+SBDIX:")
+		if (pos >= 0) and (len(ret) >5) :
+			fields = ret.split(',')
+			rcode = int(fields[1].split(' ')[1])
+			return ( rcode )
 		count = count -1
-		sleep_ms(100)
-	return(0)
+		#sleep_ms(100)
+	return(-1)
 
 def waitforOK():
 	count = 20
@@ -43,27 +63,27 @@ def waitforOK():
 			return(True)
 	return(False)
 		
-# mainly in case it hasn't started up yet
+# wait for Sat to be responsive - allow for lock
 def waitforsat():
 	count = 10
 	while count > 0:
-		print('sending AT')
+		sleep(1)
+		d('sending AT')
 		satuart.write('AT\r')
 		#discard our echo
 		satuart.readline()
 		#utime.sleep_ms(200)
-		sleep(1)
 		ret = satuart.readline()
 		if ret != None:
 			d(ret)
 			count = 0
 		else:
 			count = count -1
-			print('nothing yet')
+			d('nothing yet')
 
 # send a msg - can take many seconds
 def sendmsg(msg): 
-	print('sending message')
+	d('sending message')
 	txt = 'AT+SBDWT=' + msg + '\r'
 	satuart.write(txt)
 	waitforOK()
@@ -75,18 +95,23 @@ def sendmsg(msg):
 	# probably need sleep 1 or 2
 	sleep(1)
 	count = 80
-	while count > 0 :
-		ret = satuart.readline()
+	if waitforsent() == 0:
+		return(True)
+	else:
+		return(False)
+
+	#while count > 0 :
+	#	ret = satuart.readline()
 		# SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
 		# FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
-		if (ret != None) and (len(ret) > 6) :
-			ret = ret.lstrip()
-			print(ret)
+	#	if (ret != None) and (len(ret) > 6) :
+	#		ret = ret.lstrip()
+	#		print(ret)
 			# SOME BUG IN HERE TO DO WITH binary/strings
-			satstatus = ret.split(",")[0].split(" ")[1]
-			if satstatus == "0":
-				d("msg sent")
-			return(True)
-		count = count - 1
-		sleep_ms(100)
+	#		satstatus = ret.split(",")[0].split(" ")[1]
+	#		if satstatus == "0":
+	#			d("msg sent")
+	#		return(True)
+	#	count = count - 1
+	#	sleep_ms(100)
 
