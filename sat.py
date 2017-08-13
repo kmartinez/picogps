@@ -37,19 +37,35 @@ def satsignal():
 # wait until message sent return and parse code
 # SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
 # FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
-def waitforsent():
+def waitforsentOK():
 	count = 80
 	while count > 0:
 		ret = str(satuart.readline())
-		#d(ret)
+		d(ret)
 		pos = ret.find("+SBDIX:")
 		if (pos >= 0) and (len(ret) >5) :
 			fields = ret.split(',')
-			rcode = int(fields[1].split(' ')[1])
-			return ( rcode )
+			rcode = fields[0].split(' ')[1]
+			d(rcode)
+			if rcode == '0':
+				return ( True )
 		count = count -1
-		#sleep_ms(100)
-	return(-1)
+		sleep_ms(100)
+	return(False)
+
+def waitforREADY():
+	count = 20
+	while count > 0 :
+		ret = satuart.read()
+		if ret == None:
+			count = count - 1
+			sleep_ms(50)
+		else:
+			ret = str(ret)
+			if ret.find("READY") > 0:
+				d('got READY')
+				return(True)
+	return(False)
 
 def waitforOK():
 	count = 20
@@ -84,9 +100,13 @@ def waitforsat():
 # send a msg - can take many seconds
 def sendmsg(msg): 
 	d('sending message')
-	txt = 'AT+SBDWT=' + msg + '\r'
+	#txt = 'AT+SBDWT=' + msg + '\r'
+	#satuart.write(txt)
+	#waitforOK()
+	satuart.write('AT+SBDWT\r')
+	waitforREADY()
+	txt = msg + '\r'
 	satuart.write(txt)
-	waitforOK()
 	sleep(1)
 	# was it ok?
 	satuart.write('AT+SBDIX\r')
@@ -95,9 +115,11 @@ def sendmsg(msg):
 	# probably need sleep 1 or 2
 	sleep(1)
 	count = 80
-	if waitforsent() == 0:
+	if waitforsentOK():
+		d('message sent')
 		return(True)
 	else:
+		d('message failed')
 		return(False)
 
 	#while count > 0 :
