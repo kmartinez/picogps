@@ -1,47 +1,39 @@
-# GPS functions
-#$GPGGA,hhmmss.ss,llll.ll,a,yyyyy.yy,a,x,xx,x.x,x.x,M,x.x,M,x.x,xxxx*hh
-#1    = UTC of Position
-#2    = Latitude
-#3    = N or S
-#4    = Longitude
-#5    = E or W (negate if W)
-#6    = GPS quality indicator (0=invalid; 1=GPS fix; 2=Diff. GPS fix)
-#7    = Number of satellites in use [not those in view]
-#8    = Horizontal dilution of position
-#9    = Antenna altitude above/below mean sea level (geoid)
-#10   = Meters  (Antenna height unit)
-#11   = Geoidal separation (Diff. between WGS-84 earth ellipsoid and
-#       mean sea level.  -=geoid is below WGS-84 ellipsoid)
-#12   = Meters  (Units of geoidal separation)
-#13   = Age in seconds since last update from diff. reference station
-#14   = Diff. reference station ID#
-#15   = Checksum
-sample = "1701081400,5056.16376,123.74144,W,64.0,4,1.06,6"
-
-def nmealon2lon( l):
-	# convert text NMEA lon to degrees.decimalplaces
-	degrees = float(l[0:3])
-	decimals = float(l[3:])/60
-	lon = degrees + decimals
-	if f[3] == 'W':
-		lon = -lon
-	return(lon)
-
-def nmealat2lat( nl):
-	# convert text NMEA lat to degrees.decimalplaces
-	degrees = float(nl[0:2])
-	decimals = float(nl[2:])/60.0
-	return(degrees + decimals)
+# convert our nmea-like data to real coordinates
+#1    = YYMMDDHHmm
+#2    = Latitude in nmea format
+#3    = Longitude in nmea format
+#4    = E or W (negate Longitude if W)
+#5 = ALtitude above datum
+#6    = GPS quality indicator 4 fix 5 float
+#7    = Horizontal dilution of position
+#8    = Number of satellites in use [not those in view]
+# this sample should be at 50.953711210 1.641447010
+#sample = '1707301731,5057.2226726,138.4868206,W,130.71,5,1.4,8'
+sample = '1707301731,6354.1234567,1638.1234567,W,130.71,5,1.4,8'
 
 def parsefixdata(data):
 	f =  data.split(',')			
-	datetime = f[1]
-	lat = float(f[2][0:2]) + float(f[2][3:])/60.0
-	lon = f[3]
-	E = f[4]
-	alt = f[5]
-	qual = f[6]
-	hdop = f[7]		
-	sats = f[8]
-	#location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats,nmeafix )
-	return 'p', location
+	timestamp = f[0]
+	# only works if above 10 degrees!
+	lat = float(f[1][0:2]) + (float(f[1][2:])/60.0)
+	# carefully take one or two figures from lat as we stripped 00s
+	decpart = f[2].split('.')[0] # 138
+	fracpart = decpart[len(decpart)-2:] # 38
+	#print(decpart)
+	decpart = decpart[:len(decpart)-2]
+	#print(decpart)
+	fracpart = fracpart + '.' + f[2].split('.')[1] # 4868206
+	#print(fracpart)
+	lon = float(decpart) + (float(fracpart)/60.0)
+	E = f[3]
+	if f[3] == 'W':
+		lon = -lon
+	alt = f[4]
+	qual = f[5]
+	hdop = f[6]		
+	sats = f[7]
+	location = (timestamp,lat,lon, alt, qual,hdop,sats)
+	return location
+
+loc = parsefixdata(sample)
+print(loc)
