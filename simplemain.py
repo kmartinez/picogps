@@ -27,8 +27,8 @@ if YY == '1900' :
 # Set next alarm time
 # next_hh = getnextalarm(hh)
 # print('Next wakeup: Hour ', hh)
-# extrtc.clearalarm():
-# extrtc.setalarm(next_hh):
+# extrtc.clearalarm()
+# extrtc.setalarm(next_hh)
 
 
 #if(hh in schedule and mm<10 and hh in transmit):
@@ -86,7 +86,7 @@ def sendtosat():
 	d(payload)
 
 	#We've finished all the readings
-	if(len(payload<10)):
+	if(len(payload)<10):
 		#Empty payload
 		return False
 

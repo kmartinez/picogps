@@ -38,11 +38,13 @@ def satsignal():
 # SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
 # FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
 def waitforsentOK():
-	count = 80
+	count = 200
 	while count > 0:
 		ret = str(satuart.readline())
+		d('Count is '+ str(count))
 		d(ret)
 		pos = ret.find("+SBDIX:")
+		d(pos)
 		if (pos >= 0) and (len(ret) >5) :
 			fields = ret.split(',')
 			rcode = fields[0].split(' ')[1]
