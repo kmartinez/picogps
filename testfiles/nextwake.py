@@ -20,36 +20,28 @@ transmit = [11]
 	#We've been woken up externally. Wait for CTRL-C or sleep.
 	#sleep(10)
 
-# using current hour hh work out what the next hour is for alarm
-def setnextalarm():
-	lastone = len(schedule)-1
-	for h in range(len(schedule)):
-		if schedule[h] == hh:
-			if h == lastone:
-				# set alarm
-				# extrtc.set_alarm(schedule[0])
-				return(schedule[0])
-			# set alarm
-			# extrtc.set_alarm(schedule[h+1])
-			return(schedule[h+1])
-	# if we get here we need to find next closest alarm
-	# FAILS at the moment
-	if hh > 21:
-		# set alarm to 0
-		return(0)
-	for h in range(len(schedule)-1):
-		print('checking against ',schedule[h])
-		if schedule[h] > hh:
-			if h == lastone-1:
-				# alarm should be first one 0
-				print('alarm set to 0')
-				return(0)
-			else:
-				# set alarm to next one
-				return( schedule[h+1])
-		
+def getnextalarm(hh):
+	nexttime = None
+
+	if(hh in schedule):
+		position = schedule.index(hh)
+		nextpos = position+1
+		if(nextpos>(len(schedule)-1)):
+			nextpos = 0
+
+		nexttime = schedule[nextpos]
+
+	else:
+		for i in schedule:
+			if(i>hh):
+				nexttime = i
+				break
+		if(nexttime==None):
+			nexttime = 0
+
+	return nexttime
+
 # set a test current hour
-for hh in range(23):
-	print('time now',hh)
-	al = setnextalarm()
-	print('next alarm set to',al)
+for hour in range(24):
+	al = getnextalarm(hour)
+	print('time=>alarm ',hour,'=>', al)

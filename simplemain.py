@@ -19,9 +19,16 @@ FIXQUALITY = '4'
 MINIRIDIUM = 2
 #Get the current time
 extrtc = DS3231()
+
 (YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
 if YY == '1900' :
 	print('You need to set extrtc')
+
+# Set next alarm time
+next_hh = getnextalarm(hh)
+extrtc.clearalarm():
+extrtc.setalarm(next_hh):
+
 
 #if(hh in schedule and mm<10 and hh in transmit):
 	#satloop()
@@ -34,6 +41,31 @@ if YY == '1900' :
 #else:
 	#We've been woken up externally. Wait for CTRL-C or sleep.
 	#sleep(10)
+
+
+
+#get next alarm time
+
+def getnextalarm(hh):
+	nexttime = None
+
+	if(hh in schedule):
+		position = schedule.index(hh)
+		nextpos = position+1
+		if(nextpos>(len(schedule)-1)):
+			nextpos = 0
+
+		nexttime = schedule[nextpos]
+
+	else:
+		for i in schedule:
+			if(i>hh):
+				nexttime = i
+				break
+		if(nexttime==None):
+			nexttime = 0
+
+	return nexttime
 
 # power up Iridium, wait for connection, send data file messages
 def satloop():
@@ -69,6 +101,19 @@ def satloop():
 	d('Sending fixes via Iridium')
 	if sendmsg(payload) == True:
 		d('Done')
+		#Remove lines from file that we sent.
+		file= open('data.txt','r')
+		count = i
+		# read the lines we sent
+		while( count > 0):
+			file.readline()
+			count -= 1
+		restoffile = file.read()
+		file.close()
+		file = open('data.txt','w')
+		file.write(restoffile)
+		file.close()
+
 	else:
 		d('SatSend failed')
 
@@ -173,6 +218,9 @@ def dumpfile():
         except :
                 d('no data file')
 
+
 # These are just for our non scheduled tests! REMOVE
+
+
 gpsloop()
 satloop()
