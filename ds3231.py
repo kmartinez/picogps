@@ -111,7 +111,7 @@ class DS3231:
 
     	h = self.ds3231.mem_read(1,DS3231_I2C_ADDR,9)
     	s = self.ds3231.mem_read(1,DS3231_I2C_ADDR,0xa)
-    	print(h, s)
+    	# print(h, s)
     	
     def clearalarm(self):
         self.ds3231.mem_write(0, DS3231_I2C_ADDR, 0xe)

@@ -9,6 +9,8 @@ from ds3231 import DS3231
 from gps import *
 from sat import *
 from common import *
+import stm
+
 schedule = [0,3,6,9,11,12,15,18,21]
 transmit = [11]
 # max number of loops in ms
@@ -20,29 +22,7 @@ MINIRIDIUM = 2
 #Get the current time
 extrtc = DS3231()
 
-(YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
-if YY == '1900' :
-	print('You need to set extrtc')
-
-# Set next alarm time
-# next_hh = getnextalarm(hh)
-# print('Next wakeup: Hour ', hh)
-# extrtc.clearalarm()
-# extrtc.setalarm(next_hh)
-
-
-#if(hh in schedule and mm<10 and hh in transmit):
-	#satloop()
-	#Set Next Wakeup
-
-#elif (hh in schedule and mm<10 and hh not in transmit):
-	##GPS reading time
-	#gpsloop()
-	#Set Next Wakeup
-#else:
-	#We've been woken up externally. Wait for CTRL-C or sleep.
-	#sleep(10)
-
+#Wakeup code run on startup is at bottom of file.
 
 
 #get next alarm time
@@ -230,6 +210,41 @@ def dumpfile():
 		fd.close()
 	except :
 		d('no data file')
+
+
+#Main run method. Run on startup.
+
+#First check the time.
+
+(YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
+if YY == '1900' :
+	print('You need to set extrtc')
+
+#Setup wake interrupt
+pin = pyb.Pin.board.A0                     
+pin.init(mode = pyb.Pin.IN, pull = pyb.Pin.PULL_DOWN)
+# In this mode pin has pulldown enabled
+stm.mem32[stm.PWR + stm.PWR_CR] |= 4            # set CWUF to clear WUF in PWR_CSR
+stm.mem32[stm.PWR + stm.PWR_CSR] |= 0x100       # Enable wakeup
+
+#Set next alarm time
+extrtc.clearalarm()
+nextwake = getnextalarm(hh)
+extrtc.setalarm(nextwake)
+print('\nWAKEUP', str(hh)+":"+str(mm), '=> **', nextwake, "hrs **. ALARM SET\n")
+
+
+#if(hh in schedule and mm<10 and hh in transmit):
+	#satloop()
+	#pyb.standby()
+
+#elif (hh in schedule and mm<10 and hh not in transmit):
+	##GPS reading time
+	#gpsloop()
+	#pyb.standby()
+#else:
+	#We've been woken up externally. Wait for CTRL-C or sleep.
+	#sleep(10)
 
 
 # These are just for our non scheduled tests! REMOVE
