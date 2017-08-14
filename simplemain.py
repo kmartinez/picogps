@@ -25,9 +25,10 @@ if YY == '1900' :
 	print('You need to set extrtc')
 
 # Set next alarm time
-next_hh = getnextalarm(hh)
-extrtc.clearalarm():
-extrtc.setalarm(next_hh):
+# next_hh = getnextalarm(hh)
+# print('Next wakeup: Hour ', hh)
+# extrtc.clearalarm():
+# extrtc.setalarm(next_hh):
 
 
 #if(hh in schedule and mm<10 and hh in transmit):
@@ -54,9 +55,7 @@ def getnextalarm(hh):
 		nextpos = position+1
 		if(nextpos>(len(schedule)-1)):
 			nextpos = 0
-
 		nexttime = schedule[nextpos]
-
 	else:
 		for i in schedule:
 			if(i>hh):
@@ -64,40 +63,34 @@ def getnextalarm(hh):
 				break
 		if(nexttime==None):
 			nexttime = 0
-
 	return nexttime
 
-# power up Iridium, wait for connection, send data file messages
-def satloop():
+
+def sendtosat():
+	#Pull data from file and send it.
 	data = []
 	payload = ""
+	i = 0
+
+	#Get x readings from file.
 	with open('data.txt','r') as file:
-		i = 0
 		for line in file:
 			# need to swap \n for ; for iridium
-                        linenoCR = line.rstrip('\n')
-                        linenoCR = linenoCR + ';'
-                        payload = payload + linenoCR
-                        #Check we are only sending a few readings.300/55=5
-                        i = i + 1
-                        if(i >= 3):
-                                break
+				linenoCR = line.rstrip('\n')
+				linenoCR = linenoCR + ';'
+				payload = payload + linenoCR
+				#Check we are only sending a few readings.300/55=5
+				i = i + 1
+				if(i >= 5):
+					break
 	d(payload)
-	# turn SAT on
-	d('SAT on')
-	satpower.value(1)
-	#wait for sat to boot
-	waitforsat()
-	d('Getting Iridium signal')
-	strength = satsignal()
-	if (strength != None) and (int(strength) >= MINIRIDIUM) :
-		d('OK Sat strength')
-	else:
-		d('Sat strength failed')
-		return
+
+	#We've finished all the readings
+	if(len(payload<10)):
+		#Empty payload
+		return False
 
 	# send fix via sat
-
 	d('Sending fixes via Iridium')
 	if sendmsg(payload) == True:
 		d('Done')
@@ -113,15 +106,35 @@ def satloop():
 		file = open('data.txt','w')
 		file.write(restoffile)
 		file.close()
+		return True
 
 	else:
 		d('SatSend failed')
+		return False
+
+# power up Iridium, wait for connection, send data file messages
+def satloop():
+
+	d('SAT on')
+	satpower.value(1)
+	#wait for sat to boot
+	waitforsat()
+	d('Getting Iridium signal')
+	strength = satsignal()
+	if (strength != None) and (int(strength) >= MINIRIDIUM) :
+		d('OK Sat strength')
+	else:
+		d('Sat strength failed')
+		satpower.value(0)
+		return
+
+	while(sendtosat()==True):
+		d("Satellite data send complete.")
 
 	#turn SAT off
 	satpower.value(0)
 	#we're done.
 	return
-
 
 
 def gpsloop():
@@ -194,33 +207,33 @@ def gpsloop():
 
 # debug gps stream print for tests
 def printgps():
-        while True:
-                s = gpsuart.readline()
-                print(s)
+	while True:
+		s = gpsuart.readline()
+		print(s)
 
 # debug - print ext rtc date
 def date():
-        extrtc = DS3231()
-        print(extrtc.get_time())
+	extrtc = DS3231()
+	print(extrtc.get_time())
 
 # vital dumper in case of stuck readings on Pico
 def dumpfile():
-        # really need to sleep(10) so logging can be started
-        print('Start logger - 10s to go')
-        sleep(1)
-        try:
-                fd = open('data.txt','r')
-                b = " "
-                while b != "" :
-                        b = fd.readline()
-                        print(b)
-                fd.close()
-        except :
-                d('no data file')
+	# really need to sleep(10) so logging can be started
+	print('Start logger - 10s to go')
+	sleep(1)
+	try:
+		fd = open('data.txt','r')
+		b = " "
+		while b != "" :
+				b = fd.readline()
+				print(b)
+		fd.close()
+	except :
+		d('no data file')
 
 
 # These are just for our non scheduled tests! REMOVE
 
 
-gpsloop()
-satloop()
+# gpsloop()
+# satloop()
