@@ -28,7 +28,12 @@ def satsignal():
 			d(ret)
 			csqpos = ret.find("CSQ:")
 			if (csqpos >= 0) and (len(ret) >5) :
-				return ( ret[4 + csqpos] )
+				strength = int( ret[4 + csqpos] )
+				if(strength>0):
+					return strength
+				else:
+					d('STRENGTH IS ZERO - lets try again.')
+					break
 			count = count -1
 			sleep_ms(100)
 		sleep(2)

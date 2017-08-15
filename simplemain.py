@@ -14,7 +14,7 @@ import stm
 schedule = [0,3,6,9,11,12,15,18,21]
 transmit = [11]
 # max number of loops in ms
-positiontimeout = 60*1000
+positiontimeout = 120*1000
 # use fix type of this quality (is FIX really 4?) HARDCODED NOW
 FIXQUALITY = '4'
 # minimum Iridium strength to use
@@ -259,7 +259,9 @@ elif (hh in schedule and mm<10 and hh not in transmit):
 	pyb.standby()
 else:
 	#We've been woken up externally. Wait for CTRL-C or sleep.
+	print('Press CTRL-C Now to prevent going back to sleep!')
 	sleep(10)
+	pyb.standby()
 
 
 # These are just for our non scheduled tests! REMOVE
