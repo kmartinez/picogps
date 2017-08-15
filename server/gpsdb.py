@@ -36,19 +36,29 @@ class GpsDb(object):
     def get_unprocessed_messages(self):
         if not self.connected():
             raise GpsDbError()
-        self.db.query("SELECT COUNT(*) FROM iridium_raw WHERE 'processed' = 0")
-        result = self.db.store_result()
-        return result.fetch_row(0)[0][0]
-        
+        self.db.query("SELECT id, imei, data FROM iridium_raw WHERE processed = 0")
+        return self.db.store_result().fetch_row(maxrows=0)
+      
+    def get_unprocessed_message_count(self):
+       return len(self.get_unprocessed_messages())
+
+    def set_processed(self, msg_id):
+        if not self.connected():
+            raise GpsDbError()
+        cursor = self.db.cursor()
+        cursor.execute(
+            "UPDATE iridium_raw SET processed = 1 WHERE id = %s",
+            msg_id)
+        cursor.close()
+        self.logger.debug("Message %d marked as processed" % msg_id)
+        self.db.commit()
+ 
     def save_position(self, imei, timestamp, lat, lon, alt, qual, hdop, sats):
         if not self.connected():
             raise GpsDbError()
         cursor = self.db.cursor()
         cursor.execute(
             "INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, quality, hdop, sats) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (imei, str(timestamp), lon, lat, alt, qual, hdop, sats))
-        cursor.close()
-        print("INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, quality, hdop, sats) VALUES (%s, \"%s\", %s, %s, %s, %s, %s, %s)",
             (imei, str(timestamp), lon, lat, alt, qual, hdop, sats))
         cursor.close()
         self.db.commit()
