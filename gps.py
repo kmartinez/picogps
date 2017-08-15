@@ -22,8 +22,8 @@ def nmealon2lon( l):
 	degrees = float(l[0:3])
 	decimals = float(l[3:])/60
 	lon = degrees + decimals
-	if f[3] == 'W':
-		lon = -lon
+	# if f[3] == 'W':
+	# 	lon = -lon
 	return(lon)
 
 def nmealat2lat( nl):
