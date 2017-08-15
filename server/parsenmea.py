@@ -25,13 +25,13 @@ def parsefixdata(data):
 	fracpart = fracpart + '.' + f[2].split('.')[1] # 4868206
 	#print(fracpart)
 	lon = float(decpart) + (float(fracpart)/60.0)
-	E = f[3]
-	if f[3] == 'W':
-		lon = -lon
-	alt = f[4]
-	qual = f[5]
-	hdop = f[6]		
-	sats = f[7]
+	#E = f[3]
+	#assume all West if f[3] == 'W':
+	lon = -lon
+	alt = f[3]
+	qual = f[4]
+	hdop = f[5]		
+	sats = f[6]
 	location = (timestamp,lat,lon, alt, qual,hdop,sats)
 	return location
 
