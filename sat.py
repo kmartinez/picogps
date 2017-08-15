@@ -14,8 +14,8 @@ satuart.init(19200,bits=8,parity=None,timeout=60)
 # sig str can take > 4s
 # try three times in case its increasing
 def satsignal():
-	count = 3
-	while count >= 0:
+	maincount = 3
+	while maincount > 0:
 		d('getting signal strength')
 		msg = 'AT+CSQ\r'
 		satuart.write(msg)
@@ -32,6 +32,7 @@ def satsignal():
 			count = count -1
 			sleep_ms(100)
 		sleep(2)
+		maincount = maincount - 1
 	return(0)
 
 # wait until message sent return and parse code
@@ -116,7 +117,7 @@ def sendmsg(msg):
 	satuart.readline()
 	# probably need sleep 1 or 2
 	sleep(1)
-	count = 80
+	count = 200
 	if waitforsentOK():
 		d('message sent')
 		return(True)

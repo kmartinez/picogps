@@ -117,7 +117,7 @@ def satloop():
 	return
 
 
-def gpsloop():
+def gpsloop(waiter=False):
 	global finalgps
 	fixcount = 0
 	CheckedRTC = False
@@ -128,15 +128,20 @@ def gpsloop():
 	gps10 = []
 	# wait for typ warm-up time
 	d('waiting for warmup period')
-	sleep(11)
+	if(not waiter):
+		sleep(11)
 	d('starting gps loop')
 
+	start = pyb.millis()
 	while t < positiontimeout:
-		start = pyb.millis()
+		thetype = ''
 		nmea = gpsuart.readline()
 		if (nmea == None) or (len(nmea) < 32):
 			continue
-		thetype, data = processGPS(nmea)
+		try:
+			thetype, data = processGPS(nmea)
+		except:
+			d('processGPS ERROR - continuing.')
 
 		if(thetype=='t'):
 			#We got a timestamp
@@ -156,6 +161,7 @@ def gpsloop():
 		elif(thetype=='p'):
 			#We got some positional data, may need to say q=4 ?
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
+			print('Quality is', qual)
 			if(qual == FIXQUALITY):
 				#count happy GPS fix.
 				d('got fix')
@@ -168,6 +174,7 @@ def gpsloop():
 
 		#once we have seen 15 fixes we store and exit QUICKHACK
 		# At this point we assume we got a GPS datetime
+		print('fixcount is ', fixcount)
 		if(fixcount >= 15):
 			# store it in file
 			with open('data.txt','a') as file:
@@ -234,17 +241,18 @@ extrtc.setalarm(nextwake)
 print('\nWAKEUP', str(hh)+":"+str(mm), '=> **', nextwake, "hrs **. ALARM SET\n")
 
 
-#if(hh in schedule and mm<10 and hh in transmit):
-	#satloop()
-	#pyb.standby()
+if(hh in schedule and mm<10 and hh in transmit):
+	#Time to send readings
+	satloop()
+	pyb.standby()
 
-#elif (hh in schedule and mm<10 and hh not in transmit):
-	##GPS reading time
-	#gpsloop()
-	#pyb.standby()
-#else:
+elif (hh in schedule and mm<10 and hh not in transmit):
+	#GPS reading time
+	gpsloop()
+	pyb.standby()
+else:
 	#We've been woken up externally. Wait for CTRL-C or sleep.
-	#sleep(10)
+	sleep(10)
 
 
 # These are just for our non scheduled tests! REMOVE
