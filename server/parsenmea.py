@@ -14,7 +14,7 @@ import datetime
 
 
 def parsefixdata(data):
-	f =  data.split(',')			
+	f =  data.replace(";","").split(',')			
 	timestamp = datetime.datetime.strptime(f[0], "%y%m%d%H%M")
 	# only works if above 10 degrees!
 	lat = float(f[1][0:2]) + (float(f[1][2:])/60.0)
