@@ -37,5 +37,7 @@ def parsefixdata(data):
 	location = (timestamp,lat,lon, alt, qual,hdop,sats)
 	return location
 
-loc = parsefixdata(sample)
-print(loc)
+
+if __name__ == "__main__":
+    loc = parsefixdata(sample)
+    print(loc)
