@@ -49,7 +49,7 @@ def processGPS(data):
 		sats = f[7].strip("0")		
 		hdop = f[8]		
 		alt = f[9]
-		nmeafix = lat + "," + lon.strip('0') + "," + E + "," + alt + "," + qual + "," + hdop + "," +  sats + "\n"
+		nmeafix = lat + "," + lon.strip('0') + "," + alt + "," + qual + "," + hdop + "," +  sats + "\n"
 		location = (nmealat2lat(lat),nmealon2lon(lon), alt, qual,hdop,sats,nmeafix )
 		return 'p', location
 			

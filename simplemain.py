@@ -121,6 +121,13 @@ def gpsloop(waiter=False):
 	global finalgps
 	fixcount = 0
 	CheckedRTC = False
+	gpsYY = ''
+	gpsMM = ''
+	gpsDD = ''
+	gpshh = ''
+	gpsmm = ''
+	nmeafix = ''
+
 	#turn GPS on
 	gpspower.value(1)
 
