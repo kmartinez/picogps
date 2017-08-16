@@ -19,21 +19,23 @@ class TrackerUnpacker(object):
             msg_id = msg[0]
             imei = msg[1]
             data = msg[2]
-            try:
-                (timestamp, lat, lon, alt, qual, hdop, sats) = parsefixdata(data)
-            except Exception as e:
-                self.logger.error("Unable to parse data \"%s\"" % data)
-                self.db.set_processed(msg_id)
-            try:
-                self.logger.info("Saving reading from %s at %s" % (imei, timestamp))
-                self.db.save_position(
-                    imei, timestamp, lat, lon, alt, qual,
-                    hdop, sats)
-                self.db.set_processed(msg_id)
-            except Exception as e:
-                self.logger.critical(str(e))
-                break
+            positions = data.split(";")
+            for pos in positions:
+                try:
+                    (timestamp, lat, lon, alt, qual, hdop, sats) = parsefixdata(pos)
+                except Exception as e:
+                    self.logger.error("Unable to parse data \"%s\"" % pos)
+                    self.db.set_processed(msg_id)
+                try:
+                    self.logger.info("Saving reading from %s at %s" % (imei, timestamp))
+                    self.db.save_position(
+                        imei, timestamp, lat, lon, alt, qual,
+                        hdop, sats)
+                    self.db.set_processed(msg_id)
+                except Exception as e:
+                    self.logger.critical(str(e))
+                    break
 
 if __name__ == "__main__":
-    TRACK = TrackerUnpacker("db.ini", 20)
+    TRACK = TrackerUnpacker("db.ini", 10)
     TRACK.unpackall()
