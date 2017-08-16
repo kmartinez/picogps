@@ -1,6 +1,7 @@
-Code for the bergprpbe GPS trackers based on espruino pico
-and some dGPS units, RTC etc
-Kirk Martinez, University of Southampton
+Code for the bergprobe RTK dGPS trackers based on espruino pico
+and some dGPS units (Piksi Multi and Ublox M8P).
+Kirk Martinez, Joshue Curry, 2017, Electronics and Computer Science, University of Southampton, UK
+See www.glacsweb.org
 
 Reminders
 fresh Ubuntu installs need these to test code locally:
@@ -12,9 +13,9 @@ pip install pyserial
 to prevent modemmanager connecting and sending AT etc:
 sudo systemctl disable ModemManager.service
 
-Pico boards are programmed with this dfu:
+Pico boards are programmed with:
 http://micropython.org/download#other
-during dev time this was version 1.8.7 (although newer versions exist which push towards hardware not pyb) - oh we have some running the latest...
+during dev time this was version 1.8.7 - we have some running the latest 1.9. on last few
 
 My normal way is
 git clone https://github.com/micropython/micropython.git
