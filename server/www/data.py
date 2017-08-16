@@ -10,5 +10,6 @@ def index(req):
     output = ""
     req.content_type = "text/csv"
     DB = gpsdb.GpsDb(CONFIG)
+    output += "Glacier,IMEI,timestamp,longitude,latitude,quality,hdop,sats\r\n"
     output += csv_convert(DB.get_data())
     return output
