@@ -27,6 +27,8 @@ class TrackerUnpacker(object):
             data = msg[2]
             positions = data.split(";")
             for pos in positions:
+                if pos == "":   #Handle the empty element at the end
+                    continue
                 try:
                     (timestamp, lat, lon, alt, qual, hdop, sats) = parsefixdata(pos)
                 except Exception as e:
