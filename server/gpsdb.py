@@ -38,7 +38,19 @@ class GpsDb(object):
             raise GpsDbError()
         self.db.query("SELECT id, imei, data FROM iridium_raw WHERE processed = 0")
         return self.db.store_result().fetch_row(maxrows=0)
-      
+
+    def get_data(self):
+        if not self.connected():
+            raise GpsDbError()
+        self.db.query("SELECT * FROM tracker_overview")
+        return self.db.store_result().fetch_row(maxrows=0)
+
+    def get_latest_data(self):
+        if not self.connected():
+            raise GpsDbError()
+        self.db.query("SELECT * FROM tracker_latest")
+        return self.db.store_result().fetch_row(maxrows=0)
+
     def get_unprocessed_message_count(self):
        return len(self.get_unprocessed_messages())
 
