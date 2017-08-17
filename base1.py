@@ -7,20 +7,17 @@
 
 from ds3231 import DS3231
 from gps import *
-from sat import *
+#from sat import *
 from common import *
 import stm
 
 # real one
-#schedule = [0,3,6,9,11,12,15,18,21]
+# copy of rover schedule = [0,3,6,9,11,12,15,18,21]
 schedule = [0,3,6,9,12,15,18,21]
-transmit = [22]
+# to delete! transmit = [22]
 # max number of loops in ms
 positiontimeout = 180*1000
-# use fix type of this quality (is FIX really 4?) HARDCODED NOW
-FIXQUALITY = '4'
-# minimum Iridium strength to use
-MINIRIDIUM = 2
+
 #Get the current time
 extrtc = DS3231()
 
@@ -84,6 +81,7 @@ def gpsloop(waiter=False):
 		if(thetype=='t'):
 			#We got a timestamp
 			d('got timestamp')
+			fixcount = 1
 			(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss ) = data
 			if CheckedRTC != True:
 				CheckedRTC = True
@@ -95,15 +93,15 @@ def gpsloop(waiter=False):
 					d('Setting ext RTC')
 					# what to set for wday? 0 ?
 					extrtc.set_time(int(gpsYY), int(gpsMM), int(gpsDD), 0, int(gpshh), int(gpsmm), int(gpsss))
-					fixcount = 1
+					
 
 		else:
 			#Theres been some kind of problem. Timeout?
 			#d('No data received - Timeout?')
 			pass
 
-		#once we have seen 15 fixes we store and exit QUICKHACK
-		# At this point we assume we got a GPS datetime
+		#once we have seen one we carry on
+		# At this point we assume we got a GPS timestamp
 		print('fixcount is ', fixcount)
 		if(fixcount >= 0):
 			break
@@ -112,9 +110,10 @@ def gpsloop(waiter=False):
 		#Set the time for our positiontimeout
 		t = pyb.millis()-start
 
+	sleep(180)
 	# turn GPS off
 	d('GPS off')
-	sleep(180)
+	
 	gpspower.value(0)
 
 
@@ -126,8 +125,11 @@ def printgps():
 
 # debug - print ext rtc date
 def date():
-	extrtc = DS3231()
+	# TO REMOVE extrtc = DS3231()
 	print(extrtc.get_time())
+	
+def standby():
+	pyb.standby()
 
 # vital dumper in case of stuck readings on Pico
 def dumpfile():
@@ -166,13 +168,7 @@ nextwake = getnextalarm(hh)
 extrtc.setalarm(nextwake)
 print('\nWAKEUP', str(hh)+":"+str(mm), '=> **', nextwake, "hrs **. ALARM SET\n")
 
-
-if(hh in schedule and mm<10 and hh in transmit):
-	#Time to send readings
-	#satloop()
-	pyb.standby()
-
-elif (hh in schedule and mm<10 and hh not in transmit):
+if (hh in schedule and mm<10):
 	#GPS reading time
 	gpspower.value(1)
 	sleep(180)
