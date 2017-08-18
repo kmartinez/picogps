@@ -20,12 +20,13 @@ class TrackerUnpacker(object):
 
     def unpackall(self):
         unprocessed = self.db.get_unprocessed_messages()
-        self.logger.info("%d records to process", len(unprocessed))
+        self.logger.info("%d messages to process", len(unprocessed))
         for msg in unprocessed:
             msg_id = msg[0]
             imei = msg[1]
             data = msg[2]
             positions = data.split(";")
+            self.logger.info("%d positions in message" % (len(positions) - 1))##Take off 1 because last element in array is empty
             for pos in positions:
                 if pos == "":   #Handle the empty element at the end
                     continue

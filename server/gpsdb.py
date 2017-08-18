@@ -33,6 +33,13 @@ class GpsDb(object):
     def connected(self):
         return self.db is not None
 
+    def get_data_count(self, imei):
+        if not self.connected():
+            raise GpsDbError()
+        self.db.query("SELECT COUNT(*) FROM tracker_data WHERE imei = %s"% imei)
+        return self.db.store_result().fetch_row(maxrows=1)[0][0]
+
+
     def get_unprocessed_messages(self):
         if not self.connected():
             raise GpsDbError()
