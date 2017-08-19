@@ -13,10 +13,10 @@ import stm
 
 # real one
 #schedule = [0,3,6,9,11,12,15,18,21]
-schedule = [0,3,6,9,12,15,18,21,22]
-transmit = [22]
+schedule = [0,3,6,9,12,13,15,18,21]
+transmit = [13]
 # max number of loops in ms
-positiontimeout = 120*1000
+positiontimeout = 150*1000
 # use fix type of this quality (is FIX really 4?) HARDCODED NOW
 FIXQUALITY = '4'
 # minimum Iridium strength to use
