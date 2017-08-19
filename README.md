@@ -1,6 +1,7 @@
 Code for the bergprobe RTK dGPS trackers based on espruino pico
 and some dGPS units (Piksi Multi and Ublox M8P).
-Kirk Martinez, Joshue Curry, 2017, Electronics and Computer Science, University of Southampton, UK
+Kirk Martinez, Joshua Curry, Philip Basford, Graeme Bragg, 2017,
+Electronics and Computer Science, University of Southampton, UK
 See www.glacsweb.org
 
 Reminders
@@ -23,3 +24,13 @@ micropython/tools/pydfu.py -u micropythondownload.dfu
 
 other way untested for us:
 sudo ./pydfu.py -u 'espruino-pico-etc etc etc.dfu'
+
+base.py is main.py for Piksi Multi base station
+
+base-ublox.py is main.py for Ublox base station
+
+simplemain.py is main.py for Piksi Multi rover or ublox
+
+sat.py has code for the Iridium Rockblock
+
+gps.py is generic code to get data from GPS units
