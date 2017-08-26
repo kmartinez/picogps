@@ -1,9 +1,9 @@
 #
-# main picoGPS code
-# Simplified test of immediate GPS read
+# main picoGPS code for glacsweb.org BergProbe
 # check hour, do a job, set next alarm
-# gps job reads until it gets lots of fixes, saves to data.txt
-# satjob sends batch of fixes from file
+# gps loop reads until it gets lots of fixes, saves one to data.txt
+# sat loop sends batch of fixes from file
+# K.Martinez and J.Curry, University of Southampton, 2017
 
 from ds3231 import DS3231
 from gps import *
@@ -11,13 +11,13 @@ from sat import *
 from common import *
 import stm
 
-# real one
-#schedule = [0,3,6,9,11,12,15,18,21]
+# What hours to do gps (must incl transmit)
 schedule = [0,3,6,9,12,13,15,18,21]
+# when to send data
 transmit = [13]
-# max number of loops in ms
-positiontimeout = 150*1000
-# use fix type of this quality (is FIX really 4?) HARDCODED NOW
+# max time of gps loops in ms
+positiontimeout = 200*1000
+# use fix type of this quality (dGPS FIX is 4)
 FIXQUALITY = '4'
 # minimum Iridium strength to use
 MINIRIDIUM = 2
@@ -61,7 +61,7 @@ def sendtosat():
 				linenoCR = line.rstrip('\n')
 				linenoCR = linenoCR + ';'
 				payload = payload + linenoCR
-				#Check we are only sending a few readings.300/55=5
+				#only sending a few readings 300/50=6 max
 				i = i + 1
 				if(i >= 5):
 					break
@@ -170,7 +170,7 @@ def gpsloop(waiter=False):
 		elif(thetype=='p'):
 			#We got some positional data, may need to say q=4 ?
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
-			print('Quality is', qual)
+			print('Quality: ', qual)
 			if(qual == FIXQUALITY):
 				#count happy GPS fix.
 				d('got fix')
@@ -181,19 +181,19 @@ def gpsloop(waiter=False):
 			#d('No data received - Timeout?')
 			pass
 
-		#once we have seen 15 fixes we store and exit QUICKHACK
+		# once we have seen 15 fixes we store and exit
 		# At this point we assume we got a GPS datetime
 		print('fixcount is ', fixcount)
 		if(fixcount >= 15):
 			# store it in file
 			with open('data.txt','a') as file:
-				# assume we saw timedate for now
+				# assume we saw timedate
 				tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix
 				file.write(tostore)
 			break
 
 
-		#Set the time for our positiontimeout
+		# how long have we been looping? for positiontimeout
 		t = pyb.millis()-start
 
 	# turn GPS off
@@ -227,6 +227,17 @@ def dumpfile():
 	except :
 		d('no data file')
 
+# useful with cold hands
+def saton():
+	satpower.value(1)
+
+def satoff():
+	satpower.value(0)
+def gpson():
+	gpspower.value(1)
+
+def gpsoff():
+	gpspower.value(0)
 
 #Main run method. Run on startup.
 
@@ -265,9 +276,3 @@ else:
 	sleep(20)
 	pyb.standby()
 
-
-# These are just for our non scheduled tests! REMOVE
-
-
-# gpsloop()
-# satloop()
