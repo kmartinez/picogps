@@ -117,6 +117,11 @@ def gpsloop(waiter=False):
 	gpspower.value(0)
 
 # useful with cold hands
+def setrtc(YY,MM,DD,hh,mm,ss):
+        print('make sure you used UTC')
+        extrtc.set_time(int(YY), int(MM), int(DD), 0, int(hh), int(mm), int(ss))
+        date()
+
 def gpson():
 	gpspower.value(1)
 
