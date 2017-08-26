@@ -8,11 +8,6 @@ def enableDebug():
 	debug = True
 
 def d(txt):
-	print(txt)
-#	if(debug):
-#		#Print debug messages
-#		print txt
-#	else:
-#		#Dont bother printing debug
-#		pass
+	if((txt is not None) or (txt is not 'None')):
+		print(txt)
 
