@@ -25,14 +25,14 @@ def satsignal():
 		count = 60
 		while count > 0:
 			ret = str(satuart.readline())
-			d(ret)
+			#d(ret)
 			csqpos = ret.find("CSQ:")
 			if (csqpos >= 0) and (len(ret) >5) :
 				strength = int( ret[4 + csqpos] )
 				if(strength>0):
 					return strength
 				else:
-					d('STRENGTH IS ZERO - lets try again.')
+					d('STRENGTH IS ZERO - trying again.')
 					break
 			count = count -1
 			sleep_ms(100)
@@ -48,9 +48,8 @@ def waitforsentOK():
 	while count > 0:
 		ret = str(satuart.readline())
 		d('Count is '+ str(count))
-		d(ret)
+		#d(ret)
 		pos = ret.find("+SBDIX:")
-		d(pos)
 		if (pos >= 0) and (len(ret) >5) :
 			fields = ret.split(',')
 			rcode = fields[0].split(' ')[1]
@@ -58,7 +57,7 @@ def waitforsentOK():
 			if rcode == '0':
 				return ( True )
 		count = count -1
-		sleep_ms(100)
+		sleep_ms(200)
 	return(False)
 
 def waitforREADY():
@@ -129,19 +128,4 @@ def sendmsg(msg):
 	else:
 		d('message failed')
 		return(False)
-
-	#while count > 0 :
-	#	ret = satuart.readline()
-		# SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
-		# FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
-	#	if (ret != None) and (len(ret) > 6) :
-	#		ret = ret.lstrip()
-	#		print(ret)
-			# SOME BUG IN HERE TO DO WITH binary/strings
-	#		satstatus = ret.split(",")[0].split(" ")[1]
-	#		if satstatus == "0":
-	#			d("msg sent")
-	#		return(True)
-	#	count = count - 1
-	#	sleep_ms(100)
 
