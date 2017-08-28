@@ -5,6 +5,7 @@
 # sat loop sends batch of fixes from file
 # K.Martinez and J.Curry, University of Southampton, 2017
 
+from time import sleep
 from ds3231 import DS3231
 from gps import *
 from sat import *
