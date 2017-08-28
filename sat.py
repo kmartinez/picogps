@@ -53,7 +53,8 @@ def waitforsentOK():
 		if (pos >= 0) and (len(ret) >5) :
 			fields = ret.split(',')
 			rcode = fields[0].split(' ')[1]
-			d(rcode)
+			d('returncode'+str(rcode))
+			#d(rcode)
 			if rcode == '0':
 				return ( True )
 		count = count -1
@@ -100,9 +101,11 @@ def waitforsat():
 		if ret != None:
 			d(ret)
 			count = 0
+			return(True)
 		else:
 			count = count -1
 			d('nothing yet')
+	return(False)
 
 # send a msg - can take many seconds
 def sendmsg(msg): 
