@@ -1,5 +1,5 @@
 #
-# main picoGPS code
+# main picoGPS code for a BASE STATION
 # Simplified test of immediate GPS read
 # check hour, do a job, set next alarm
 # gps job reads until it gets lots of fixes, saves to data.txt
@@ -16,7 +16,7 @@ import stm
 schedule = [0,3,6,9,12,15,18,21]
 # to delete! transmit = [22]
 # max number of loops in ms
-positiontimeout = 180*1000
+positiontimeout = 10*1000
 
 #Get the current time
 extrtc = DS3231()
@@ -136,7 +136,6 @@ def printgps():
 
 # debug - print ext rtc date
 def date():
-	# TO REMOVE extrtc = DS3231()
 	print(extrtc.get_time())
 	
 def standby():
@@ -182,9 +181,11 @@ print('\nWAKEUP', str(hh)+":"+str(mm), '=> **', nextwake, "hrs **. ALARM SET\n")
 if (hh in schedule and mm<10):
 	#GPS reading time
 	gpspower.value(1)
+	# see if we can get a GPS datetime
+	gpsloop()
+	# critical overlap time with rover and sets our energy use
 	sleep(180)
 	gpspower.value(0)
-	#gpsloop()
 	pyb.standby()
 else:
 	#We've been woken up externally. Wait for CTRL-C or sleep.
