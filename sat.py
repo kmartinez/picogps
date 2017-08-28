@@ -107,6 +107,11 @@ def waitforsat():
 			d('nothing yet')
 	return(False)
 
+# flush sat buffer - use before turning off acording to 9602 guide
+def satflush():
+	satuart.write('AT*F\r')
+	satuart.readline()
+
 # send a msg - can take many seconds
 def sendmsg(msg): 
 	d('sending message')
