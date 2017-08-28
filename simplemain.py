@@ -211,12 +211,15 @@ def printgps():
 def date():
 	extrtc = DS3231()
 	print(extrtc.get_time())
+	
+def standby():
+	pyb.standby()
 
 # vital dumper in case of stuck readings on Pico
 def dumpfile():
 	# really need to sleep(10) so logging can be started
 	print('Start logger - 10s to go')
-	sleep(1)
+	sleep(10)
 	try:
 		fd = open('data.txt','r')
 		b = " "
