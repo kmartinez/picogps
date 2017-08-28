@@ -25,7 +25,7 @@ micropython/tools/pydfu.py -u micropythondownload.dfu
 other way untested for us:
 sudo ./pydfu.py -u 'espruino-pico-etc etc etc.dfu'
 
-base.py is main.py for Piksi Multi base station
+base1.py is main.py for Piksi Multi base station
 
 base-ublox.py is main.py for Ublox base station
 
