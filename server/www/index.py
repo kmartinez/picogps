@@ -14,7 +14,7 @@ def index(req):
     output += ("<p>As at %s UTC</p>" % datetime.datetime.utcnow())
     output += ("<table  border><tr><th>Glacier</th><th>IMEI</th><th>Timestamp</th>" + 
         "<th>Longitude</th><th>Latitude</th><th>Altitude</th><th>Quality</th>" +
-        "<th>HDOP</th><th>Satelites</th><th>Position Count</th><th>View</th></tr>")
+        "<th>HDOP</th><th>Satellites</th><th>Position Count</th><th>View</th></tr>")
     DB = gpsdb.GpsDb(CONFIG)
     LATEST = DB.get_latest_data()
     for SITE in LATEST:
