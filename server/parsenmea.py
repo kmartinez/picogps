@@ -34,6 +34,11 @@ def parsefixdata(data):
 	qual = int(f[4])
 	hdop = float(f[5])
 	sats = int(f[6])
+    #0s are stripped off the data, it won't get a fix with just
+    # 1 satelite so this must be a stripped character so change
+    # it to 10 before going any further
+    if sats == 1: 
+        sats = 10
 	location = (timestamp,lat,lon, alt, qual,hdop,sats)
 	return location
 
