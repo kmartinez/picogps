@@ -1,7 +1,7 @@
 # haversine formula to get dist between two long lats
 from math import radians, sin, cos, atan2, sqrt
 
-def haver(lon1, lat1, lon2, lat2):
+def haver(lat1, lon1, lat2, lon2):
 	R = 6371000
 	lat1r = radians(lat1)
 	lat2r = radians(lat2)
@@ -14,6 +14,6 @@ def haver(lon1, lat1, lon2, lat2):
 	d = R * c
 	return d
 
-print(haver(-16.33418481, 64.0937139, -16.33418175, 64.09371249) )
+print(haver(64.0937139,-16.33418481,  64.09371249,-16.33418175 ) )
 
 
