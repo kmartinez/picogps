@@ -14,7 +14,7 @@ def index(req):
     output += ("<p>As at %s UTC</p>" % datetime.datetime.utcnow())
     output += ("<table  border><tr><th>Glacier</th><th>IMEI</th><th>Timestamp</th>" + 
         "<th>Longitude</th><th>Latitude</th><th>Altitude</th><th>Quality</th>" +
-        "<th>HDOP</th><th>Satelites</th><th>Position Count</th></tr>")
+        "<th>HDOP</th><th>Satellites</th><th>Position Count</th><th>View</th></tr>")
     DB = gpsdb.GpsDb(CONFIG)
     LATEST = DB.get_latest_data()
     for SITE in LATEST:
@@ -30,6 +30,10 @@ def index(req):
         output += ("<td>%s</td>" % SITE[7])
         output += ("<td>%s</td>" % SITE[8])
         output += ("<td>%s</td>" % COUNT)
+        output += ("<td>")
+        output += ("<a target=\"_blank\" href=\"https://maps.google.com/?q=%s,%s\">Map</a> " % (SITE[4], SITE[3]))
+        output += ("<a target=\"_blank\" href=\"https://maps.google.com/?t=k&q=%s,%s\">Satellite</a> " % (SITE[4], SITE[3]))
+        output += "</td>"
         output += "</tr>"
     output += "</table>"
     output += "<p>Number of unprocessed messages: %d</p>\r\n" % DB.get_unprocessed_message_count()

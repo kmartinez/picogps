@@ -49,7 +49,7 @@ class GpsDb(object):
     def get_data(self):
         if not self.connected():
             raise GpsDbError()
-        self.db.query("SELECT * FROM tracker_overview")
+        self.db.query("SELECT * FROM tracker_overview ORDER BY imei, timestamp ASC")
         return self.db.store_result().fetch_row(maxrows=0)
 
     def get_latest_data(self):
