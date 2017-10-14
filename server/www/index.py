@@ -21,7 +21,9 @@ def index(req):
         COUNT = DB.get_data_count(SITE[1])
         output += "<tr>"
         output += ("<td>%s</td>" % SITE[0])
-        output += ("<td>%s</td>" % SITE[1])
+        output += (
+            "<td><a href = \"data.py?imei=%s\">%s</a></td>" % 
+            (SITE[1], SITE[1]))
         output += ("<td>%s</td>" % SITE[2])
         output += ("<td>%s</td>" % SITE[3])
         output += ("<td>%s</td>" % SITE[4])
