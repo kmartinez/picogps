@@ -4,7 +4,7 @@ sys.path.append("/home/glacsweb/picogps/server")
 
 import gpsdb
 from csvconvert import csv_convert
-
+from processdata import add_dist_vel
 CONFIG = "/home/glacsweb/picogps/server/db.ini"
 
 def index(req):
@@ -15,7 +15,8 @@ def index(req):
         output += "Glacier,IMEI,timestamp,longitude,latitude,altitude,quality,hdop,sats\r\n"
         output += csv_convert(DB.get_data())
     else:
-        output += csv_convert(DB.get_data_imei(parameters.getfirst("imei")))
+        output += csv_convert(
+            add_dist_vel(DB.get_data_imei(parameters.getfirst("imei"))))
     req.content_type = 'text/csvi'
     req.headers_out.add("Content-Disposition", "attachment;filename=tracker.csv")
 
