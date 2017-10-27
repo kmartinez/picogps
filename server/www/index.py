@@ -38,7 +38,7 @@ def index(req):
         output += "</td>"
         output += "</tr>"
     output += "</table>"
-    output += "<p>Number of unprocessed messages: %d</p>\r\n" % DB.get_unprocessed_message_count()
+    output += "<p>Number of unprocessed messages: <a href=\"http://data.glacsweb.info/iridium\" target=\"_blank\">%d</a></p>\r\n" % DB.get_unprocessed_message_count()
     output += "<a href = \"data.py\"> Download data</a>"
     output += "</body></html>"
     return output
