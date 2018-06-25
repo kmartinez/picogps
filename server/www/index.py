@@ -14,14 +14,16 @@ def index(req):
     output += ("<p>As at %s UTC</p>" % datetime.datetime.utcnow())
     output += ("<table  border><tr><th>Glacier</th><th>IMEI</th><th>Timestamp</th>" + 
         "<th>Longitude</th><th>Latitude</th><th>Altitude</th><th>Quality</th>" +
-        "<th>HDOP</th><th>Satelites</th><th>Position Count</th><th>View</th></tr>")
+        "<th>HDOP</th><th>Satellites</th><th>Position Count</th><th>View</th></tr>")
     DB = gpsdb.GpsDb(CONFIG)
     LATEST = DB.get_latest_data()
     for SITE in LATEST:
         COUNT = DB.get_data_count(SITE[1])
         output += "<tr>"
         output += ("<td>%s</td>" % SITE[0])
-        output += ("<td>%s</td>" % SITE[1])
+        output += (
+            "<td><a href = \"data.py?imei=%s\">%s</a></td>" % 
+            (SITE[1], SITE[1]))
         output += ("<td>%s</td>" % SITE[2])
         output += ("<td>%s</td>" % SITE[3])
         output += ("<td>%s</td>" % SITE[4])
@@ -36,7 +38,7 @@ def index(req):
         output += "</td>"
         output += "</tr>"
     output += "</table>"
-    output += "<p>Number of unprocessed messages: %d</p>\r\n" % DB.get_unprocessed_message_count()
+    output += "<p>Number of unprocessed messages: <a href=\"http://data.glacsweb.info/iridium\" target=\"_blank\">%d</a></p>\r\n" % DB.get_unprocessed_message_count()
     output += "<a href = \"data.py\"> Download data</a>"
     output += "</body></html>"
     return output
