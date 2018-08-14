@@ -244,7 +244,10 @@ def temperature():
 		sum = sum + tc
 	g.low()
 	# we return C X 10 to save the decimal place
-	return(str(int(round(sum/100.0,1) * 10)))
+	temp = round(sum/100.0,1)
+	# if its broken we will get out of range return 0
+	if temp > 80 : return("0")
+	return(str(int(temp * 10)))
 
 # useful with cold hands
 def saton():
