@@ -3,7 +3,7 @@
 # check hour, do a job, set next alarm
 # gps loop reads until it gets lots of fixes, saves one to data.txt
 # sat loop sends batch of fixes from file
-# K.Martinez and J.Curry, University of Southampton, 2017
+# K.Martinez and J.Curry, University of Southampton, 2017/8
 
 import math
 from time import sleep
@@ -190,7 +190,7 @@ def gpsloop(waiter=False):
 			# store it in file
 			with open('data.txt','a') as file:
 				# assume we saw timedate
-				tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix
+				tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix + "," + temperature() + "\n"
 				file.write(tostore)
 			break
 
@@ -243,7 +243,8 @@ def temperature():
 		tc = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - w)))/-0.00694) + 30
 		sum = sum + tc
 	g.low()
-	return(round(sum/100.0,1))
+	# we return C X 10 to save the decimal place
+	return(str(int(round(sum/100.0,1) * 10)))
 
 # useful with cold hands
 def saton():
