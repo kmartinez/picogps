@@ -29,7 +29,8 @@ base1.py is main.py for Piksi Multi base station
 
 base-ublox.py is main.py for Ublox base station
 
-simplemain.py is main.py for Piksi Multi rover or ublox
+simplemain.py was 2017 main.py for Piksi Multi rover or ublox
+base2018.py is the version for 2018 with temp sensor.
 
 sat.py has code for the Iridium Rockblock
 
