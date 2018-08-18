@@ -12,7 +12,7 @@ def index(req):
     DB = gpsdb.GpsDb(CONFIG)
     parameters = util.FieldStorage(req, keep_blank_values=1)
     if not "imei" in parameters.keys():
-        output += "Glacier,IMEI,timestamp,longitude,latitude,altitude,quality,hdop,sats\r\n"
+        output += "Glacier,IMEI,timestamp,longitude,latitude,altitude,quality,hdop,sats,temperature\r\n"
         output += csv_convert(DB.get_data())
     else:
         output += csv_convert(
