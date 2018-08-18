@@ -6,7 +6,7 @@ LAT_INDEX = 4
 ALT_INDEX = 5
 def add_dist_vel(data):
     reading_count = len(data)
-    if reading_count > 2:
+    if reading_count >= 2:
         processed_data = []
         processed_data.append([])
         processed_data[0].extend(data[0])
@@ -40,7 +40,8 @@ def add_dist_vel(data):
             prev_time = time
             i += 1  #move onto the next record
         return processed_data
-    return None
+    return data
+    # if only 1 reading cannot calc differences so return original data
 
 
 

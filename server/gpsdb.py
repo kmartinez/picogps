@@ -1,6 +1,7 @@
-from configobj import ConfigObj
-import MySQLdb
 import logging
+import MySQLdb
+
+from configobj import ConfigObj
 
 class GpsDb(object):
 
@@ -57,7 +58,7 @@ class GpsDb(object):
             raise GpsDbError()
         cursor = self.db.cursor()
         cursor.execute(
-            "SELECT * FROM tracker_overview WHERE imei = %s ORDER BY timestamp ASC",  imei)
+            "SELECT * FROM tracker_overview WHERE imei = %s ORDER BY timestamp ASC", imei)
         data = cursor.fetchall()
         cursor.close()
         return data
@@ -69,7 +70,7 @@ class GpsDb(object):
         return self.db.store_result().fetch_row(maxrows=0)
 
     def get_unprocessed_message_count(self):
-       return len(self.get_unprocessed_messages())
+        return len(self.get_unprocessed_messages())
 
     def set_processed(self, msg_id):
         if not self.connected():
@@ -79,16 +80,22 @@ class GpsDb(object):
             "UPDATE iridium_raw SET processed = 1 WHERE id = %s",
             msg_id)
         cursor.close()
-        self.logger.debug("Message %d marked as processed" % msg_id)
+        self.logger.debug("Message %d marked as processed", msg_id)
         self.db.commit()
- 
-    def save_position(self, imei, timestamp, lat, lon, alt, qual, hdop, sats):
+
+    def save_position(
+            self, imei, timestamp, lat, lon, alt, qual, hdop, sats, temp=None):
         if not self.connected():
             raise GpsDbError()
         cursor = self.db.cursor()
-        cursor.execute(
-            "INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, quality, hdop, sats) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (imei, str(timestamp), lon, lat, alt, qual, hdop, sats))
+        if temp is None:
+            cursor.execute(
+                "INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, quality, hdop, sats) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (imei, str(timestamp), lon, lat, alt, qual, hdop, sats))
+        else: # new format doesn't have quality or hdop
+            cursor.execute(
+                "INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, sats, temperature) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (imei, str(timestamp), lon, lat, alt, sats, temp))
         cursor.close()
         self.db.commit()
         self.logger.debug("Position saved")
