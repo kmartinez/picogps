@@ -94,7 +94,7 @@ class GpsDb(object):
                 (imei, str(timestamp), lon, lat, alt, qual, hdop, sats))
         else: # new format doesn't have quality or hdop
             cursor.execute(
-                "INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, sats, temperature) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT IGNORE INTO tracker_data (imei, timestamp, longitude, latitude, altitude, sats, temperature) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (imei, str(timestamp), lon, lat, alt, sats, temp))
         cursor.close()
         self.db.commit()

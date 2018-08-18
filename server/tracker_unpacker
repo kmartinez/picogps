@@ -15,7 +15,8 @@ class TrackerUnpacker(object):
     def __init__(self, config, log_level):
         self.logger = logging.getLogger("Tracker Unpacker")
         self.logger.setLevel(log_level)
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(lineno)d - %(levelname)s- %(message)s')
+        logging.basicConfig(
+            format='%(asctime)s - %(name)s - %(lineno)d - %(levelname)s- %(message)s')
         self.db = GpsDb(config, log_level)
 
     def unpackall(self):
@@ -26,7 +27,8 @@ class TrackerUnpacker(object):
             imei = msg[1]
             data = msg[2]
             positions = data.split(";")
-            self.logger.info("%d positions in message", (len(positions) - 1))##Take off 1 because last element in array is empty
+            self.logger.info("%d positions in message", (len(positions) - 1))
+            ##Take off 1 because last element in array is empty
             for pos in positions:
                 if pos == "":   #Handle the empty element at the end
                     continue
