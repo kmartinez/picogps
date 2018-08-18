@@ -1,10 +1,4 @@
 # Pyboard driver for DS3231 precison real time clock.
-# Adapted from WiPy driver at https://github.com/scudderfish/uDS3231
-# Includes routine to calibrate the Pyboard's RTC from the DS3231
-# delta method now operates to 1mS precision
-# precison of calibration further improved by timing Pyboard RTC transition
-# Adapted by Peter Hinch, Jan 2016
-# stripped down to i2c bus 2 by Kirk
 
 import utime, pyb
 DS3231_I2C_ADDR = 104
@@ -14,18 +8,16 @@ class DS3231Exception(OSError):
 
 rtc = pyb.RTC()
 
-def now():  # Return the current time from the RTC in millisecs from year 2000
+def now():  
     secs = utime.time()
     ms = 1000 * (255 -rtc.datetime()[7]) >> 8
-    if ms < 50:                                 # Might have just rolled over
+    if ms < 50:
         secs = utime.time()
     return 1000 * secs + ms
 
-def nownr():  # Return the current time from the RTC: caller ensures transition has occurred
+def nownr():  
      return 1000 * utime.time() + (1000 * (255 -rtc.datetime()[7]) >> 8)
 
-# Driver for DS3231 accurate RTC module (+- 1 min/yr) needs adapting for Pyboard
-# source https://github.com/scudderfish/uDS3231
 def bcd2dec(bcd):
     return (((bcd & 0xf0) >> 4) * 10 + (bcd & 0x0f))
 
@@ -100,24 +92,14 @@ class DS3231:
 
     def setalarm(self,hour):
         self.ds3231.mem_write(dec2bcd(hour), DS3231_I2C_ADDR, 9)
-    	# min and seconds  must be zero
         self.ds3231.mem_write(0, DS3231_I2C_ADDR, 8) #minutes
         self.ds3231.mem_write(0, DS3231_I2C_ADDR, 7) #seconds
-    	# also need to set A1M4 3 2 1 bits to 1000 for HH Min Sec match alarm
         self.ds3231.mem_write(128, DS3231_I2C_ADDR, 0xa) #SET ALM4
-
-        #Finally, set alarm enable and interrupt output option
         self.ds3231.mem_write(5, DS3231_I2C_ADDR, 0xe) #SET INTCN and A1IE
 
     	h = self.ds3231.mem_read(1,DS3231_I2C_ADDR,9)
     	s = self.ds3231.mem_read(1,DS3231_I2C_ADDR,0xa)
-    	# print(h, s)
     	
     def clearalarm(self):
         self.ds3231.mem_write(0, DS3231_I2C_ADDR, 0xe)
         self.ds3231.mem_write(0, DS3231_I2C_ADDR, 0xf)
-	
-
-    def testalarm(self):
-    	self.set_time(2017,1,1,1,11,59,50)
-    	self.setalarm(12)
