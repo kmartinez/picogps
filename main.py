@@ -1,8 +1,9 @@
 #
 # main picoGPS code for glacsweb.org BergProbe
 # check hour, do a job, set next alarm
-# gps loop reads until it gets lots of fixes, saves one to data.txt
-# sat loop sends batch of fixes from file
+# gps loop reads until it gets lots of fixes, saves last to data.txt
+# sat loop Iridium sends fixes from file
+# temperature included from am ADC
 # K.Martinez and J.Curry, University of Southampton, 2017/8
 
 import math
@@ -14,13 +15,12 @@ from common import *
 import stm
 
 # What hours to do gps (must incl transmit)
-#schedule = [0,3,6,9,12,13,15,18,21]
-schedule = [0,3,6,10,11,12,13,15,18,21]
+schedule = [0,3,6,9,12,13,15,18,21]
 # when to send data
-transmit = [11]
+transmit = [13]
 # max time of gps loops in ms
 positiontimeout = 200*1000
-# use fix type of this quality (dGPS FIX is 4)
+# use fix type of this quality (FIX 4)
 FIXQUALITY = '4'
 # minimum Iridium strength to use
 MINIRIDIUM = 2
@@ -28,7 +28,6 @@ MINIRIDIUM = 2
 extrtc = DS3231()
 
 #Wakeup code run on startup is at bottom of file.
-
 
 #get next alarm time
 
@@ -99,7 +98,6 @@ def sendtosat():
 
 # power up Iridium, wait for connection, send data file messages
 def satloop():
-
 	d('SAT on')
 	satpower.value(1)
 	#wait for sat to boot
@@ -219,10 +217,9 @@ def date():
 def standby():
 	pyb.standby()
 
-# vital dumper in case of stuck readings on Pico
+# dumper to get readings off Pico
 def dumpfile():
-	# really need to sleep(10) so logging can be started
-	print('Start logger - 10s to go')
+	print('Start your log/capture - 10s to go')
 	sleep(10)
 	try:
 		fd = open('data.txt','r')
@@ -244,13 +241,11 @@ def temperature():
 		tc = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - w)))/-0.00694) + 30
 		sum = sum + tc
 	g.low()
-	# we return C X 10 to save the decimal place
+	# we return C X 10 to save . byte
 	return(str(int(round(sum/100.0,1) * 10)))
 
-# useful with cold hands
 def saton():
 	satpower.value(1)
-
 def satoff():
 	satpower.value(0)
 def gpson():
@@ -261,7 +256,7 @@ def gpsoff():
 
 #Main run method. Run on startup.
 
-#First check the time.
+#check the time.
 
 (YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
 if YY == '1900' :
@@ -294,5 +289,7 @@ else:
 	#We've been woken up externally. Wait for CTRL-C or sleep.
 	print('Press CTRL-C Now to prevent going back to sleep!')
 	sleep(20)
+	gpsoff()
+	satoff()
 	pyb.standby()
 
