@@ -241,8 +241,11 @@ def temperature():
 		tc = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - w)))/-0.00694) + 30
 		sum = sum + tc
 	g.low()
-	# we return C X 10 to save . byte
-	return(str(int(round(sum/100.0,1) * 10)))
+	# we return C X 10 to save the decimal place
+	temp = round(sum/100.0,1)
+	# if its broken we will get out of range return 0
+	if temp > 80 : return("0")
+	return(str(int(temp * 10)))
 
 def saton():
 	satpower.value(1)
