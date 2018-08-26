@@ -31,7 +31,7 @@ def index(req):
         output += ("<td>%s</td>" % SITE[6])
         output += ("<td>%s</td>" % SITE[7])
         output += ("<td>%s</td>" % SITE[8])
-        output += ("<td>%s</td>" % SITE[9])
+        output += ("<td><a href = \"http://data.glacsweb.info/iceland/tracker/plotTemperature?imei=%s\">%s</a></td>" % (SITE[1], SITE[9]))
         output += ("<td>%s</td>" % COUNT)
         output += ("<td>")
         output += ("<a target=\"_blank\" href=\"https://maps.google.com/?q=%s,%s\">Map</a> " % (SITE[4], SITE[3]))
