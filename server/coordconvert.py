@@ -1,6 +1,6 @@
 import pyproj
-
-def convertwgs94(lon, lat, alt):
+# converts from WGS84 long lat alt to XYZ (geocentric)
+def convertwgs84(lon, lat, alt):
     #https://gis.stackexchange.com/a/212727/30004
     wgs84 = pyproj.Proj(
         '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')##4326
