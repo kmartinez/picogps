@@ -24,6 +24,8 @@ sample2018 = '1707301731,6354.1234567,1638.1234567,130.71,8,215'
 
 def parsefixdata(data):
     f = data.replace(";", "").split(',')
+    if len(f) != 6 and len(f) != 6:
+        raise ValueError("Invalid length of message")
     timestamp = datetime.datetime.strptime(f[0], "%y%m%d%H%M")
     # only works if above 10 degrees!
     lat = float(f[1][0:2]) + (float(f[1][2:])/60.0)
