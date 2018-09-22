@@ -80,7 +80,7 @@ class GpsDb(object):
     def get_latest_data(self):
         if not self.connected():
             raise GpsDbError()
-        self.db.query("SELECT * FROM tracker_latest")
+        self.db.query("SELECT * FROM (SELECT * FROM `tracker_overview` ORDER BY timestamp DESC) AS data GROUP BY Glacier")
         return self.db.store_result().fetch_row(maxrows=0)
 
     def get_unprocessed_message_count(self):
