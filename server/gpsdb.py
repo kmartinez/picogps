@@ -63,6 +63,20 @@ class GpsDb(object):
         cursor.close()
         return data
 
+    def get_sats(self, imei=None):
+        if not self.connected():
+            raise GpsDbError()
+        cursor = self.db.cursor()
+        if imei is not None:
+            cursor.execute(
+                "SELECT imei, timestamp, sats FROM tracker_data WHERE imei = %s ORDER BY timestamp ASC", imei)
+        else:
+            cursor.execute(
+                "SELECT imei, timestamp, sats FROM tracker_data ORDER BY timestamp ASC")
+        data = cursor.fetchall()
+        cursor.close()
+        return data
+
     def get_temperature(self, imei=None):
         if not self.connected():
             raise GpsDbError()
