@@ -27,7 +27,7 @@ def index(req):
         output += ("<td>%s</td>" % SITE[2])
         output += ("<td>%s</td>" % SITE[3])
         output += ("<td>%s</td>" % SITE[4])
-        output += ("<td>%s</td>" % SITE[5])
+        output += ("<td><a href = \"plotAltitude.py?imei=%s\">%s</a></td>" % (SITE[1], SITE[5]))
         output += ("<td>%s</td>" % SITE[6])
         output += ("<td>%s</td>" % SITE[7])
         output += ("<td><a href = \"plotSats.py?imei=%s\">%s</a></td>" % (SITE[1], SITE[8]))
