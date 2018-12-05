@@ -11,9 +11,12 @@ def add_dist_vel(data):
         processed_data = []
         processed_data.append([])
         processed_data[0].extend(data[0])
-        (prev_x, prev_y, prev_z) = convertwgs84(
+        (first_x, first_y, first_z) = convertwgs84(
             data[0][LON_INDEX], data[0][LAT_INDEX], data[0][ALT_INDEX])
-        processed_data[0].extend([prev_x, prev_y, prev_z, 0, 0, 0])
+        processed_data[0].extend([first_x, first_y, first_z, 0, 0, 0])
+        prev_x = first_x
+        prev_y = first_y
+        prev_z = first_z
         prev_time = data[0][TIME_INDEX]
         i = 1   #skip the first row as no previous data
         while i < reading_count:
@@ -26,7 +29,11 @@ def add_dist_vel(data):
             diff_z = z - prev_z
             diff_sum = pow(diff_x, 2) + pow(diff_y, 2) + pow(diff_z, 2)
             movement = sqrt(diff_sum)
-            totdist = totdist + movement
+            total_x = x - first_x
+            total_y = y - first_y
+            total_z = z - first_z
+            total_sum = pow(total_x,2) + pow(total_y, 2) + pow(total_z, 2)
+            totdist = sqrt(total_sum)
             speed = movement / time_diff
             print "X = " + str(x)
             print "Y = " + str(y)
