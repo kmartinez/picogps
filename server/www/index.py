@@ -36,14 +36,15 @@ def index(req):
         output += ("<td>")
         output += ("<a target=\"_blank\" href=\"https://maps.google.com/?q=%s,%s\">Map</a> " % (SITE[4], SITE[3]))
         output += ("<a target=\"_blank\" href=\"https://maps.google.com/?t=k&q=%s,%s\">Satellite</a> " % (SITE[4], SITE[3]))
-        output += ("<a target=\"_blank\"href=\"http://data.glacsweb.info/iceland/tracker/plotLonLat.py?imei=%s\">Plot</a> " % SITE[1])
+        output += ("<a target=\"_blank\"href=\"http://data.glacsweb.info/iceland/tracker/plot.py?imei=%s\">Plot</a> " % SITE[1])
+        output += ("<a target=\"_blank\"href=\"http://data.glacsweb.info/iceland/tracker/plotDistance.py?imei=%s\">Dist</a> " % SITE[1])
         output += ("<a target=\"_blank\"href=\"http://data.glacsweb.info/iceland/tracker/data.py?imei=%s\">Data</a> " % SITE[1])
         output += "</td>"
         output += "</tr>"
     output += "</table>"
     output += "<p>Number of unprocessed messages: <a href=\"http://data.glacsweb.info/iridium\" target=\"_blank\">%d</a></p>\r\n" % DB.get_unprocessed_message_count()
-    output += "<a href = \"http://data.glacsweb.info/iceland/tracker/plotLonLat.py?imei=300434062968520\">Breida plot</a><br>"
-    output += "<a href = \"http://data.glacsweb.info/iceland/tracker/plotLonLat.py?imei=300434062961640\">Fjalls Plot</a><br>"
+    output += "<a href = \"http://data.glacsweb.info/iceland/tracker/plot.py?imei=300434062968520\">Breida plot</a><br>"
+    output += "<a href = \"http://data.glacsweb.info/iceland/tracker/plot.py?imei=300434062961640\">Fjalls Plot</a><br>"
     output += "<a href = \"data.py\"> Download data</a>"
     output += "</body></html>"
     return output
