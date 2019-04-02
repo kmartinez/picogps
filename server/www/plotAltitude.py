@@ -21,7 +21,7 @@ def index(req):
                 google.charts.load('current', {'packages':['corechart']});
                 google.charts.setOnLoadCallback(drawChart);
                 function drawChart() {
-                var data = google.visualization.arrayToDataTable([['timestamp','temperature'],"""
+                var data = google.visualization.arrayToDataTable([['timestamp','altitude'],"""
 
         data =  DB.get_altitude(parameters.getfirst("imei"))
         for line in data:
