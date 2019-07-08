@@ -43,8 +43,6 @@ def index(req):
         output += "</tr>"
     output += "</table>"
     output += "<p>Number of unprocessed messages: <a href=\"http://data.glacsweb.info/iridium\" target=\"_blank\">%d</a></p>\r\n" % DB.get_unprocessed_message_count()
-    output += "<a href = \"http://data.glacsweb.info/iceland/tracker/plot.py?imei=300434062968520\">Breida plot</a><br>"
-    output += "<a href = \"http://data.glacsweb.info/iceland/tracker/plot.py?imei=300434062961640\">Fjalls Plot</a><br>"
     output += "<a href = \"data.py\"> Download data</a>"
     output += "</body></html>"
     return output
