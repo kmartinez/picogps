@@ -58,7 +58,7 @@ class GpsDb(object):
             raise GpsDbError()
         cursor = self.db.cursor()
         cursor.execute(
-            "SELECT * FROM tracker_overview WHERE imei = %s ORDER BY timestamp ASC", imei)
+            "SELECT * FROM tracker_overview WHERE imei = %s ORDER BY timestamp ASC", [imei])
         data = cursor.fetchall()
         cursor.close()
         return data
@@ -69,7 +69,7 @@ class GpsDb(object):
         cursor = self.db.cursor()
         if imei is not None:
             cursor.execute(
-                "SELECT imei, timestamp, sats FROM tracker_data WHERE imei = %s ORDER BY timestamp ASC", imei)
+                "SELECT imei, timestamp, sats FROM tracker_data WHERE imei = %s ORDER BY timestamp ASC", [imei])
         else:
             cursor.execute(
                 "SELECT imei, timestamp, sats FROM tracker_data ORDER BY timestamp ASC")
@@ -83,7 +83,7 @@ class GpsDb(object):
         cursor = self.db.cursor()
         if imei is not None:
             cursor.execute(
-                "SELECT imei, timestamp, altitude FROM tracker_data WHERE imei = %s ORDER BY timestamp ASC", imei)
+                "SELECT imei, timestamp, altitude FROM tracker_data WHERE imei = %s ORDER BY timestamp ASC", [imei])
         else:
             cursor.execute(
                 "SELECT imei, timestamp, altitude FROM tracker_data ORDER BY timestamp ASC")
@@ -98,7 +98,7 @@ class GpsDb(object):
         cursor = self.db.cursor()
         if imei is not None:
             cursor.execute(
-                "SELECT imei, timestamp, temperature  FROM tracker_data WHERE imei = %s AND temperature IS NOT NULL ORDER BY timestamp ASC", imei)
+                "SELECT imei, timestamp, temperature  FROM tracker_data WHERE imei = %s AND temperature IS NOT NULL ORDER BY timestamp ASC", [imei])
         else:
             cursor.execute(
                 "SELECT imei, timestamp, temperature FROM tracker_data WHERE temperature IS NOT NULL ORDER BY timestamp ASC")
