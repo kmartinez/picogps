@@ -119,9 +119,10 @@ class GpsDb(object):
         if not self.connected():
             raise GpsDbError()
         cursor = self.db.cursor()
+        self.logger.debug("marking %d", msg_id)
         cursor.execute(
             "UPDATE iridium_raw SET processed = 1 WHERE id = %s",
-            msg_id)
+            [msg_id])
         cursor.close()
         self.logger.debug("Message %d marked as processed", msg_id)
         self.db.commit()
