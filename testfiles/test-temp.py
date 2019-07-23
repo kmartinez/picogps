@@ -9,16 +9,17 @@ from pyb import Pin
 from pyb import RTC
 
 a = pyb.ADC(pyb.Pin.board.A5)
-g = pyb.Pin('B1', pyb.Pin.OUT_PP)
+g = pyb.Pin('A7', pyb.Pin.OUT_PP)
 rtc = RTC()
 
 # set a specific date and time
-rtc.datetime((2018, 7, 27, 5, 15, 42, 0, 0)) 
+rtc.datetime((2019, 7, 27, 5, 15, 42, 0, 0)) 
 
 #Tuen on lmt86
 print('LMT86 turn on.')
 g.high()
-
+#must wait 2ms before use
+sleep(0.02)
 #Check ADC value 
 def adcValue():	
 	adcVal = a.read()
@@ -33,41 +34,35 @@ def adcValue():
 	#return v
 	#return(round(tc,1))
 
-#Convert mV to degree celcius
+#Convert adc to degree celcius
 def lmt86():
-	tmp = a.read()
-	w = tmp * 3300 / 4096.0
-	tc2 = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - w)))/-0.00694) + 30
+	mv = a.read() * 3300.0 / 4096.0
+	tc2 = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - mv)))/-0.00694) + 30
 	return tc2
 	#return(round(tc2,1))
 
 #Use mean to minimize white noise	
 def meantemp():
 	n = 0.0
-	for count in range(1,50):
+	for count in range(1,10):
 		n = n + lmt86()
-	return(round(n/50.0,1))
+	return(round(n/10.0,1))
 
 def rtcc():
 	r = rtc.datetime() # get date and time
 	return r
 
 #while True:
-	#print('lmt86 in mV : ')
-	#print(mV())
-	#print('lmt86 in temp : ')
 	#print(lmt86())
-	#print("adc val : ")
-	#print(adcValue())
 	#sleep(1)	
 
 #Print meantemp for 100 times	
-for count in range(1,10):
-	print('Date and Time : ')
-	print(rtcc())
+for count in range(1,100):
+	#print('Date and Time : ')
+	#print(rtcc())
 	print('meantemp : ')
 	print(meantemp())
-	sleep(60)
+	sleep(2)
 
 #Turn off lmt86
 print('lmt86 turn off.')
