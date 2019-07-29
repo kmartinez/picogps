@@ -38,6 +38,10 @@ def adcValue():
 def lmt86():
 	mv = a.read() * 3300.0 / 4096.0
 	tc2 = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - mv)))/-0.00694) + 30
+	if tc2 > 40:
+		tc2 = 40
+	elif tc2 < -40:
+		tc2 = -40
 	return tc2
 	#return(round(tc2,1))
 
