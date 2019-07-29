@@ -26,35 +26,36 @@ def deg2bin(deg):
     intpart = int(deg)
     frac = int(round(100000000.0 * (deg - intpart),0))
     # make the 4 byte array for this value
-    decimals_ba = bytearray(frac.to_bytes(4, byteorder='big'))
+    decimals_ba = bytearray(frac.to_bytes(4, 'little'))
 
     # first byte deg  - with float part
-    deg_ba = bytearray(intpart.to_bytes(1, byteorder='big'))
+    deg_ba = bytearray(intpart.to_bytes(1, 'little'))
     return deg_ba + decimals_ba
 
 def alt2bin(alt):
     alt_cm = int(round(alt * 100.0,0))
-    return bytearray(alt_cm.to_bytes(2, byteorder='big'))
+    return bytearray(alt_cm.to_bytes(2, 'little'))
 
 def temp2bin(t):
     '''(temperature offset to manage neg'''
     tr = int(round((t + 2560),0))
-    return bytearray(tr.to_bytes(2, byteorder='big'))
+    return bytearray(tr.to_bytes(2, 'little'))
 
 def sats2bin(sats):
     '''conv int sats to a byte'''
-    return bytearray(sats.to_bytes(1, byteorder='big'))
+    return bytearray(sats.to_bytes(1, 'little'))
 
 
 def timestamp2bin(timestamp_s):
     ''' convert from YYMMDDhhmm to YMDHm bytes'''
     print(timestamp_s)
     # should check if len == 10?
-    Y = bytearray(int(timestamp_s[0:2]).to_bytes(1,byteorder='big'))
-    M = bytearray(int(timestamp_s[2:4]).to_bytes(1,byteorder='big'))
-    D = bytearray(int(timestamp_s[4:6]).to_bytes(1,byteorder='big'))
-    H = bytearray(int(timestamp_s[6:8]).to_bytes(1,byteorder='big'))
-    m = bytearray(int(timestamp_s[8:10]).to_bytes(1,byteorder='big'))
+    # to_bytes different in modern python byteorder="little"
+    Y = bytearray(int(timestamp_s[0:2]).to_bytes(1,"little"))
+    M = bytearray(int(timestamp_s[2:4]).to_bytes(1,'little'))
+    D = bytearray(int(timestamp_s[4:6]).to_bytes(1,'little'))
+    H = bytearray(int(timestamp_s[6:8]).to_bytes(1,'little'))
+    m = bytearray(int(timestamp_s[8:10]).to_bytes(1,'little'))
     return Y + M + D + H + m
 
 
