@@ -23,12 +23,31 @@ def printfield(txt,n):
     lcd.set_pos(5,10+n*10)
     lcd.write(txt)
 
+# running average of all values added
+class averagepos:
+    def __init__(self):
+        self.lat_sum =0
+        self.lon_sum =0
+        self.alt_sum =0
+        self.readings =0
 
+    def add(self,lat,lon,alt):
+        self.lat_sum += lat
+        self.lon_sum += lon
+        self.alt_sum += alt
+        self.readings += 1
+        return(self.lat_sum/self.readings, self.lon_sum/self.readings, self.alt_sum/self.readings)
+    def clear(self):
+        self.lat_sum = 0
+        self.lon_sum = 0
+        self.alt_sum = 0
+        self.readings = 0
 
 lcdinit()
 
 gpsuart = pyb.UART(6,9600)
 gpsuart.init(9600,bits=8,parity=None,timeout=60)
+avpos = averagepos()
 while(1):
         if gpsuart.any() :
             # its possible to read a stump if we don't wait
@@ -53,6 +72,8 @@ while(1):
                 printfield(alt,4)
                 printfield(qual + " " + sats,5)
                 #printfield('%.2f' % alt,4)
+                lata, lona, alta = avpos.add(lat,lon, float(alt))
+                print(lata,lona,alta)
 
             pyb.LED(4).off()
         sleep(0.3)
