@@ -7,16 +7,14 @@ def lcdinit():
     #Set the position for text output using lcd.write()
     lcd.set_pos(20,70)
     #set text colow
-    lcd.set_text_color(lcd.rgb(255, 0, 0), lcd.rgb(0, 0, 0))
+    lcd.set_text_color(lcd.rgb(0, 0, 0), lcd.rgb(255, 255, 255))
     #set test font
     lcd.set_font(1)
     #Erase the entire display to the pen fill color.
     lcd.erase()
     lcd.set_pos(10, 10)
-    #Write text to the display
+    #Write title to the display
     lcd.write('Glacsweb dGPS\r\n')
-    lcd.set_text_color(lcd.rgb(255, 255, 255), lcd.rgb(0, 0, 0))
-    lcd.set_pos(20, 90)
     lcd.set_font(2)
 
 def printfield(txt,n):
@@ -43,10 +41,14 @@ class averagepos:
         self.alt_sum = 0
         self.readings = 0
 
+def startreading():
+    avpos.clear()
+
 lcdinit()
 
 gpsuart = pyb.UART(6,9600)
 gpsuart.init(9600,bits=8,parity=None,timeout=60)
+startswitch = pyb.Switch() # onboard sw for now
 avpos = averagepos()
 while(1):
         if gpsuart.any() :
@@ -76,7 +78,11 @@ while(1):
                 print(lata,lona,alta)
 
             pyb.LED(4).off()
-        sleep(0.3)
+            if startswitch.value() :
+                startreading()
+
+        #sleep(0.3)
+
 # Save is pressed - store value at end of points.txt file
 #log = open('/sd/points.txt', 'a')
 #log.write('\r\n')
