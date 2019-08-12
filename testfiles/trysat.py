@@ -1,35 +1,38 @@
 #!/usr/bin/env python
-# try Rockblock sat coms on UART 1 (tiny pins)
-# for normal systems: import serial
+# try Rockblock sat coms on UART 2 (tiny pins)
+# for bare pico swap to uart 1 (gps uart normally)
+# for laptop systems: import serial
 # may have to disable handshake with AT&K0 ???
 # may have to read back the stuff sent as its echod
 #from pyb import UART
 #import utime
-#ser = UART(2,19200)
-ser = satuart
+#assume we have imported pyb
+from sat import *
+satuart = pyb.UART(1,19200)
+satuart.init(19200,bits=8,parity=None,timeout=60)
 # normal systems:
 #import serial
 from time import sleep
 #ser = serial.Serial('/dev/ttyUSB0',19200)
 # can set the timeout option too in ms:
-# ser.init(19200,nits=8,parity=None,timeout=50)
+# ser.init(19200,bits=8,parity=None,timeout=50)
 
 # gives 0 none to 5 strong
 # after few s it replies +CSQ:2 newline then OK
-def satsignal():
+def satsignal0():
 	print('getting signal strength')
 	msg = 'AT+CSQ\r'
-	ser.write(msg)
+	satuart.write(msg)
 	# give it time so we dont timeout
 	#utime.sleep_ms(100)
 	sleep(4)
 	#discard our echo
-	ser.readline()
-	ret = ser.readline()
+	satuart.readline()
+	ret = satuart.readline()
 	#blank line
-	ser.readline()
+	satuart.readline()
 	#OK
-	ser.readline()
+	ret = str(satuart.readline())
 	if ret != None:
 		n =  ret.find('+CSQ')
 		if n != -1:
@@ -38,53 +41,53 @@ def satsignal():
 	else:
 		return(None)
 
-def waitforOK():
+def waitforOK0():
 	count = 10
 	while count > 0 :
-		ret = ser.read()
+		ret = satuart.read()
 		if ret == None:
 			count = count - 1
 		else:
 			return(True)
 	return(False)
 		
-def waitforsat():
+def waitforsat0():
 	count = 10
 	while count > 0:
 		print('sending AT')
-		ser.write('AT\r')
+		satuart.write('AT\r')
 		#discard our echo
-		ser.readline()
+		satuart.readline()
 		#utime.sleep_ms(200)
 		sleep(1)
-		ret = ser.readline()
+		ret = satuart.readline()
 		if ret != None:
 			print(ret)
 			count = 0
 		else:
 			print('nothing yet')
 
-def sendtext(msg): 
+def sendtext0(msg): 
 	print('sending message')
 	txt = msg + '\r'
-	ser.write(txt)
+	satuart.write(txt)
 	#waitforOK()
-	print(ser.read())
+	print(satuart.read())
 
-def sendmsg(msg): 
+def sendmsg0(msg): 
 	print('sending message')
         txt = 'AT+SBDWT=' + msg + '\r'
-        ser.write(txt)
+        satuart.write(txt)
         waitforOK()
         # was it ok?
-        ser.write('AT+SBDIX\r')
+        satuart.write('AT+SBDIX\r')
         #discard our echo
-        ser.readline()
+        satuart.readline()
         # probably need sleep 1 or 2
 	sleep(2)
 	ret = None
         while (ret != None) :
-		ret = ser.readline()
+		ret = satuart.readline()
 		sleep(1)
 		print("waiting for status")
         # SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
@@ -94,16 +97,51 @@ def sendmsg(msg):
         if status == "0":
                 print("msg sent")
 
+# send a binary bytearray
+def sendbinarymsg(ba): 
+	d('sending message')
+        msg = appendchksum(ba)
+	#txt = 'AT+SBDWT=' + msg + '\r'
+	#satuart.write(txt)
+	#waitforOK()
+	satuart.write('AT+SBDWB=' + str(len(ba)) + '\r')
+	waitforREADY()
+	satuart.write(msg)
+	sleep(1)
+	# was it ok?
+	satuart.write('AT+SBDIX\r')
+	#discard our echo
+	satuart.readline()
+	# probably need sleep 1 or 2
+	sleep(1)
+	count = 200
+	if waitforsentOK():
+		d('message sent')
+		return(True)
+	else:
+		d('message failed')
+		return(False)
+
+def appendchksum(ba):
+    total = sum(ba)
+    print(total)
+    c = [(total & 0xff00) >> 8, total & 0xff]
+    return( ba + bytearray(c) )
+
 # just checks AT returns
 waitforsat()
 count = 1
-while count < 3:
+while count < 10:
 	strength = satsignal()
 	if strength != None:
 		print("strength=" + str(strength))
-		break
+                if strength > 3 :
+                    break
 	count = count + 1
 	sleep(1)
 
+
 if strength > 3:
-	sendmsg("testing 1 2 3")
+        data = [1,2,3,4,5,6,7,8]
+        data_ba = bytearray(data)
+	sendbinarymsg(data_ba)
