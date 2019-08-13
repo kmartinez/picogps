@@ -19,8 +19,13 @@
 from common import d
 def nmealon2lon( l):
 	# convert text NMEA lon to degrees.decimalplaces
-	degrees = float(l[0:3])
-	decimals = float(l[3:])/60
+        if len(l.split('.')[0]) == 4 :
+            degrees = float(l[0:3])
+            decimals = float(l[3:])/60
+        else :
+            degrees = float(l[0:2])
+            decimals = float(l[2:])/60
+
 	lon = degrees + decimals
 	# if f[3] == 'W':
 	# 	lon = -lon
