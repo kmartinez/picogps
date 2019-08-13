@@ -3,7 +3,7 @@
 # check hour, do a job, set next alarm
 # gps loop reads until it gets lots of fixes, saves one to data.txt
 # sat loop sends batch of fixes from file
-# K.Martinez and J.Curry, University of Southampton, 2017/8
+# K.Martinez and J.Curry, University of Southampton, 2017/8/9
 
 import math
 from time import sleep
@@ -190,7 +190,9 @@ def gpsloop(waiter=False):
 			# store it in file
 			with open('data.txt','a') as file:
 				# assume we saw timedate
-				tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix + "," + temperature() + "\n"
+				tostore= gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix + "," + temperature() + "\n"
+				#tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + '%.8f' % lat + "," + '%.8f % lon + "," + alt + "," + hdop + "," + sats + "," + temperature() + "\n"
+                                print(tostore)
 				file.write(tostore)
 			break
 
