@@ -9,8 +9,13 @@ import struct
 # conversion from our nmea format to real degrees
 def nmealon2lon( l):
     # convert text NMEA lon to degrees.decimalplaces
-    degrees = float(l[0:2])
-    decimals = float(l[2:])/60
+    if len(l.split('.')[0]) == 4 :
+        degrees = float(l[0:3])
+        decimals = float(l[3:])/60
+    else :
+        degrees = float(l[0:2])
+        decimals = float(l[2:])/60
+
     lon = degrees + decimals
     # if f[3] == 'W':
     # 	lon = -lon
@@ -84,6 +89,8 @@ def position2binary(reading):
 print("binary version")
 # 1810100601,6400.7601232,1625.391151,93.70,16,-326;
 # we'll need to remove the ; between readings!
+print(nmealon2lon("1625.391151"))
+print(nmealon2lon("138.391151"))
 testreading = "1810100601,64.09371392,16.33418409,93.70,16,-326"
 reading_bin = position2binary(testreading)
 print(reading_bin)
