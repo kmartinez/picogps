@@ -14,7 +14,7 @@ from common import *
 import stm
 
 # What hours to do gps (must incl transmit)
-schedule = [0,3,6,9,12,13,15,18,21]
+schedule = [0,3,6,9,10,11,12,13,15,18,21]
 # when to send data
 transmit = [13]
 # max time of gps loops in ms
@@ -28,9 +28,7 @@ extrtc = DS3231()
 
 #Wakeup code run on startup is at bottom of file.
 
-
 #get next alarm time
-
 def getnextalarm(hh):
 	nexttime = None
 
@@ -42,7 +40,7 @@ def getnextalarm(hh):
 		nexttime = schedule[nextpos]
 	else:
 		for i in schedule:
-			if(i>hh):
+			if( i > hh):
 				nexttime = i
 				break
 		if(nexttime==None):
@@ -98,7 +96,6 @@ def sendtosat():
 
 # power up Iridium, wait for connection, send data file messages
 def satloop():
-
 	d('SAT on')
 	satpower.value(1)
 	#wait for sat to boot
@@ -139,6 +136,7 @@ def gpsloop(waiter=False):
 	gps10 = []
 	# wait for typ warm-up time
 	d('waiting for warmup period')
+        tempC = temperature()
 	if(not waiter):
 		sleep(11)
 	d('starting gps loop')
@@ -166,32 +164,29 @@ def gpsloop(waiter=False):
 				if(abs(int(gpsYY)-YY)>0 or abs(int(gpsMM)-MM)>0 or abs(int(gpsDD)-DD)>0 or abs(int(gpshh)-hh)>0 or abs(int(gpsmm)-mm)>0 or abs(int(gpsss)-ss)>10):
 					#update external RTC. We're >10s out
 					d('Setting ext RTC')
-					# what to set for wday? 0 ?
 					extrtc.set_time(int(gpsYY), int(gpsMM), int(gpsDD), 0, int(gpshh), int(gpsmm), int(gpsss))
 
 		elif(thetype=='p'):
-			#We got some positional data, may need to say q=4 ?
+			#We got fix, must be ==4
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
 			print('Quality: ', qual)
 			if(qual == FIXQUALITY):
-				#count happy GPS fix.
+				#count good fixes
 				d('got fix')
 				fixcount += 1
 
 		else:
 			#Theres been some kind of problem. Timeout?
-			#d('No data received - Timeout?')
+			d('No data received - Timeout?')
 			pass
 
 		# once we have seen 15 fixes we store and exit
-		# At this point we assume we got a GPS datetime
+		# we assume we got a GPS datetime for timestamp
 		print('fixcount is ', fixcount)
 		if(fixcount >= 15):
 			# store it in file
 			with open('data.txt','a') as file:
-				# assume we saw timedate
-				tostore= gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix + "," + temperature() + "\n"
-				#tostore = gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + '%.8f' % lat + "," + '%.8f % lon + "," + alt + "," + hdop + "," + sats + "," + temperature() + "\n"
+				tostore= gpsYY[2:] + gpsMM + gpsDD + gpshh + gpsmm + "," + nmeafix + "," + tempC + "\n"
                                 print(tostore)
 				file.write(tostore)
 			break
@@ -223,7 +218,7 @@ def standby():
 # vital dumper in case of stuck readings on Pico
 def dumpfile():
 	# really need to sleep(10) so logging can be started
-	print('Start logger - 10s to go')
+	print('Start your logger - 10s to go')
 	sleep(10)
 	try:
 		fd = open('data.txt','r')
@@ -241,15 +236,21 @@ def temperature():
 	g.high()
 	sleep(0.02)
 	sum = 0.0
-	for count in range(1,100):
+	for count in range(1,10):
 		w = a.read() * 3300 / 4096.0
 		tc = ((10.888 - math.sqrt(118.548544 + 0.01388 * (1777.3 - w)))/-0.00694) + 30
 		sum = sum + tc
 	g.low()
-	# we return C X 10 to save the decimal place
-	temp = round(sum/100.0,1)
-	# if its broken we will get out of range return 0
-	if temp > 80 : return("0")
+        tc2 = sum/10.0
+	# if its broken clamp to flag broken
+        if tc2 > 40:
+		tc2 = 40
+	elif tc2 < -40:
+		tc2 = -40
+
+	# return C X 10 to save decimal places
+	temp = round(tc2,1)
+        d(str(temp) + 'C')
 	return(str(int(temp * 10)))
 
 # useful with cold hands
