@@ -14,7 +14,7 @@ from common import *
 import stm
 
 # What hours to do gps (must incl transmit)
-schedule = [0,3,6,9,10,11,12,13,15,18,21]
+schedule = [0,3,6,9,12,13,15,18,21]
 # when to send data
 transmit = [13]
 # max time of gps loops in ms
