@@ -71,3 +71,12 @@ def readit():
 
 def ls():
 	print(os.listdir() )
+
+def rm(path):
+    os.remove(path)
+
+def diskfree():
+    filesys = os.statvfs("/flash")
+    return(filesys[0] * filesys[3])
+
+
