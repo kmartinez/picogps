@@ -6,6 +6,7 @@
 # K.Martinez and J.Curry, University of Southampton, 2017/8/9
 
 import math
+import os
 from time import sleep
 from ds3231 import DS3231
 from gps import *
@@ -14,9 +15,11 @@ from common import *
 import stm
 
 # What hours to do gps (must incl transmit)
-schedule = [0,3,6,9,12,13,15,18,21]
+#schedule = [0,3,6,9,12,13,15,18,21]
+schedule = [0,3,6,9,12,13,14,15,16,18,21]
 # when to send data
-transmit = [13]
+#transmit = [13]
+transmit = [22]
 # max time of gps loops in ms
 positiontimeout = 200*1000
 # use fix type of this quality (dGPS FIX is 4)
@@ -134,7 +137,6 @@ def gpsloop(waiter=False):
 
 	t = 0
 	gps10 = []
-	# wait for typ warm-up time
 	d('waiting for warmup period')
         tempC = temperature()
 	if(not waiter):
@@ -158,7 +160,7 @@ def gpsloop(waiter=False):
 			(gpsYY, gpsMM, gpsDD, gpshh, gpsmm, gpsss ) = data
 			if CheckedRTC != True:
 				CheckedRTC = True
-				# get our current datetime from rtc
+				# get current datetime from rtc
 				(YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
 				# if gpstime is > 10s different from extrtc - set extrtc
 				if(abs(int(gpsYY)-YY)>0 or abs(int(gpsMM)-MM)>0 or abs(int(gpsDD)-DD)>0 or abs(int(gpshh)-hh)>0 or abs(int(gpsmm)-mm)>0 or abs(int(gpsss)-ss)>10):
@@ -167,21 +169,19 @@ def gpsloop(waiter=False):
 					extrtc.set_time(int(gpsYY), int(gpsMM), int(gpsDD), 0, int(gpshh), int(gpsmm), int(gpsss))
 
 		elif(thetype=='p'):
-			#We got fix, must be ==4
+			#got fix, must be 4
 			(lat,lon,alt,qual,hdop,sats,nmeafix) = data
 			print('Quality: ', qual)
 			if(qual == FIXQUALITY):
-				#count good fixes
 				d('got fix')
 				fixcount += 1
 
 		else:
-			#Theres been some kind of problem. Timeout?
+			#some kind of problem
 			d('No data received - Timeout?')
 			pass
 
-		# once we have seen 15 fixes we store and exit
-		# we assume we got a GPS datetime for timestamp
+		# after 15 fixes store and exit, assume we got a datetime
 		print('fixcount is ', fixcount)
 		if(fixcount >= 15):
 			# store it in file
@@ -200,7 +200,7 @@ def gpsloop(waiter=False):
 	gpspower.value(0)
 
 
-# debug gps stream print for tests
+# print gps stream for tests
 def printgps():
 	while True:
 		s = gpsuart.readline()
@@ -264,11 +264,19 @@ def gpson():
 
 def gpsoff():
 	gpspower.value(0)
+def ls():
+        print(os.listdir() )
+
+def rm(path):
+    os.remove(path)
+
+def diskfree():
+    filesys = os.statvfs("/flash")
+    return(filesys[0] * filesys[3])
 
 #Main run method. Run on startup.
 
 #First check the time.
-
 (YY, MM, DD, hh, mm, ss, wday, n1) = extrtc.get_time()
 if YY == '1900' :
 	print('You need to set extrtc')
@@ -286,7 +294,6 @@ nextwake = getnextalarm(hh)
 extrtc.setalarm(nextwake)
 print('\nWAKEUP', str(hh)+":"+str(mm), '=> **', nextwake, "hrs **. ALARM SET\n")
 
-
 if(hh in schedule and mm<10 and hh in transmit):
 	#Time to send readings
 	satloop()
@@ -294,10 +301,13 @@ if(hh in schedule and mm<10 and hh in transmit):
 
 elif (hh in schedule and mm<10 and hh not in transmit):
 	#GPS reading time
-	gpsloop()
+        if diskfree() > 1000 :
+            gpsloop()
+        else :
+            d("disk too full")
 	pyb.standby()
 else:
-	#We've been woken up externally. Wait for CTRL-C or sleep.
+	#We've been woken up externally
 	print('Press CTRL-C Now to prevent going back to sleep!')
 	sleep(20)
 	pyb.standby()
