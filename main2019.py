@@ -15,11 +15,10 @@ from common import *
 import stm
 
 # What hours to do gps (must incl transmit)
-#schedule = [0,3,6,9,12,13,15,18,21]
-schedule = [0,3,6,9,12,13,14,15,16,18,21]
+schedule = [0,3,6,9,12,13,15,18,21]
+#schedule = [0,3,6,9,12,13,14,15,16,18,21]
 # when to send data
-#transmit = [13]
-transmit = [22]
+transmit = [13]
 # max time of gps loops in ms
 positiontimeout = 200*1000
 # use fix type of this quality (dGPS FIX is 4)
