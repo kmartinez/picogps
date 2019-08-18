@@ -42,6 +42,7 @@ def satsignal():
 
 # wait until message sent return and parse code
 # SUCCESS is +SBDIX: 0, 0, 0, 0, 0, 0
+# partSUCCESSnolocupdate is +SBDIX: 2, 0, 0, 0, 0, 0
 # FAIL like +SBDIX: 32, 1, 2, 0, 0, 0
 def waitforsentOK():
 	count = 200
@@ -55,7 +56,7 @@ def waitforsentOK():
 			rcode = fields[0].split(' ')[1]
 			d('returncode'+str(rcode))
 			#d(rcode)
-			if rcode == '0':
+			if (rcode == '0') or (rcode =='2'):
 				return ( True )
 		count = count -1
 		sleep_ms(200)
